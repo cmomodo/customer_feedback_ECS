@@ -8,11 +8,31 @@ resource "aws_vpc" "coderco_vpc" {
 }
 
 #internet gateway
-#
+resource "aws_internet_gateway" "coderco-igw" {
+  vpc_id = aws_vpc.coderco_vpc.id
+
+  tags = {
+    Name = "ecs_internet_gateway"
+  }
+}
 
 #attached gateway
-#
-#
+resource "aws_nat_gateway" "main_attach" {
+  subnet_id = aws_subnet.primary_subnet.id
+
+  tags = {
+    Name = "ecs_nat_gateway"
+  }
+}
+
+#secondary attachment
+resource "aws_nat_gateway" "secondary_attach" {
+  subnet_id = aws_subnet.secondary_subnet.id
+
+  tags = {
+    Name = "secondary_attach"
+  }
+}
 
 #public subnet
 resource "aws_subnet" "primary_subnet" {
