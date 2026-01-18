@@ -41,3 +41,4 @@ tsconfig.tsbuildinfo
 etc/*.pem
 fider_schema.sql
 fider.sql
+.terraform

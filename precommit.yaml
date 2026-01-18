@@ -1,5 +1,4 @@
 - repo: local
-  rev: v6.0.0 # Use the ref you want to point at
   hooks:
     - id: terraform-fmt-check
     - name: terraform fmt (check)
