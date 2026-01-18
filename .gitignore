@@ -1,0 +1,14 @@
+#ignore terraform state file
+*.tfstate
+
+#ignore docker compose yaml file
+compose.yml
+
+#ignore state
+*.tfstate.backup
+
+#ignore state
+*.tfstate.lock
+
+#ignore state file d
+state.tf
