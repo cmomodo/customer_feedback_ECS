@@ -1,8 +1,0 @@
-- repo: local
-  hooks:
-    - id: terraform-fmt-check
-    - name: terraform fmt (check)
-    - entry: terraform fmt -recursive -check
-    - language: system
-    - files: "\\.tf$"
-    - stages: [push]
