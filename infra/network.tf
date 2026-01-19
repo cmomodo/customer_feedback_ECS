@@ -26,7 +26,7 @@ resource "aws_default_route_table" "route_table" {
   }
 
   route {
-    ipv6_cidr_block        = "::/0"
+    ipv6_cidr_block = "::/0"
   }
 
   tags = {
@@ -60,7 +60,7 @@ resource "aws_route_table" "ecs_route_table" {
   }
 
   route {
-    ipv6_cidr_block        = "::/0"
+    ipv6_cidr_block = "::/0"
   }
 
   tags = {
@@ -125,10 +125,10 @@ resource "aws_default_security_group" "rds_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
   ingress {
-    protocol  = -1
-    self      = true
-    from_port = 0
-    to_port   = 0
+    protocol        = -1
+    self            = true
+    from_port       = 0
+    to_port         = 0
     security_groups = [aws_default_security_group.ecs_security_group.id]
   }
 

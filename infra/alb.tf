@@ -33,12 +33,12 @@ resource "aws_lb_listener" "front_end" {
 
   #health check
   health_check {
-      path = "/api/1/resolve/default?path=/service/my-service"
-      port = 2001
-      healthy_threshold = 6
-      unhealthy_threshold = 2
-      timeout = 2
-      interval = 5
-      matcher = "200"  # has to be HTTP 200 or fails
-    }
+    path                = "/api/1/resolve/default?path=/service/my-service"
+    port                = 2001
+    healthy_threshold   = 6
+    unhealthy_threshold = 2
+    timeout             = 2
+    interval            = 5
+    matcher             = "200" # has to be HTTP 200 or fails
+  }
 }
