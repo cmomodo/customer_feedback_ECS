@@ -11,67 +11,106 @@ resource "aws_ecs_cluster" "coder_ecs" {
 resource "aws_ecs_service" "coderco_ecs" {
   name            = "runner_one"
   cluster         = aws_ecs_cluster.coder_ecs.id
-  task_definition = aws_ecs_task_definition.mongo.arn
+  task_definition = aws_ecs_task_definition.task_fider.arn
   desired_count   = 1
-  iam_role        = aws_iam_role.foo.arn
+  iam_role_arn    = aws_iam_role.ecs_task_execution_role.arn
   depends_on      = [aws_iam_role_policy.foo]
 
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "cpu"
-  }
+  launch_type = "EC2"
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.foo.arn
-    container_name   = "mongo"
-    container_port   = 8080
+    target_group_arn = aws_lb_target_group.default.arn
+    container_name   = "fider"
+    container_port   = 3000
   }
 
   placement_constraints {
     type       = "memberOf"
-    expression = "attribute:ecs.availability-zone in [us-west-2a, us-west-2b]"
+    expression = "attribute:ecs.availability-zone in [\"us-west-2a\", \"us-west-2b\"]"
   }
 }
 
 #task definition
-resource "aws_ecs_task_definition" "service" {
+resource "aws_ecs_task_definition" "task_fider" {
   family = "service"
   container_definitions = jsonencode([
     {
-      name      = "first"
-      image     = "service-first"
+      name      = "fider"
+      image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
       cpu       = 10
       memory    = 512
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 3000
+          protocol      = "tcp"
         }
-      ]
-    },
-    {
-      name      = "second"
-      image     = "service-second"
-      cpu       = 10
-      memory    = 256
-      essential = true
-      portMappings = [
+      ],
+      environment = [
         {
-          containerPort = 443
-          hostPort      = 443
+          name  = "JWT_SECRET"
+          value = "hsjl]W;&ZcHxT&FK;s%bgIQF:#ch=~#Al4:5]N;7V<qPZ3e9lT4'%;go;LIkc%k"
+        },
+        {
+          name  = "DATABASE_URL"
+          value = "postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
+        },
+        {
+          name  = "EMAIL_NOREPLY"
+          value = "noreply@yourdomain.com"
+        },
+        {
+          name  = "EMAIL_SMTP_HOST"
+          value = "localhost"
+        },
+        {
+          name  = "EMAIL_SMTP_PORT"
+          value = "1025"
+        },
+        {
+          name  = "EMAIL_SMTP_USERNAME"
+          value = "testuser"
+        },
+        {
+          name  = "EMAIL_SMTP_PASSWORD"
+          value = "testpass"
+        },
+        {
+          name  = "BASE_URL"
+          value = "http://fider-alb-1279660236.us-east-1.elb.amazonaws.com"
+        },
+        {
+          name  = "GO_ENV"
+          value = "development"
+        },
+        {
+          name  = "LOG_LEVEL"
+          value = "DEBUG"
+        },
+        {
+          name  = "LOG_CONSOLE"
+          value = "true"
+        },
+        {
+          name  = "LOG_SQL"
+          value = "true"
+        },
+        {
+          name  = "LOG_FILE"
+          value = "false"
+        },
+        {
+          name  = "LOG_FILE_OUTPUT"
+          value = "logs/output.log"
         }
-      ]
+      ],
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.app.name
+          "awslogs-stream-prefix" = "coder_ecs"
+        }
+      }
     }
   ])
-
-  volume {
-    name      = "service-storage"
-    host_path = "/ecs/service-storage"
-  }
-
-  placement_constraints {
-    type       = "memberOf"
-    expression = "attribute:ecs.availability-zone in [us-west-2a, us-west-2b]"
-  }
 }

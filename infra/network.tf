@@ -125,10 +125,10 @@ resource "aws_default_security_group" "rds_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
   ingress {
-    protocol        = -1
+    protocol        = "tcp"
     self            = true
-    from_port       = 0
-    to_port         = 0
+    from_port       = 3306
+    to_port         = 3306
     security_groups = [aws_default_security_group.ecs_security_group.id]
   }
 

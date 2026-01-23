@@ -42,3 +42,10 @@ etc/*.pem
 fider_schema.sql
 fider.sql
 .terraform
+
+
+#ignore
+terraform.tfvars
+
+#ignore variables for now
+variables.tf

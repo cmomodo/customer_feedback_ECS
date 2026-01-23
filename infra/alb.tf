@@ -18,21 +18,24 @@ resource "aws_lb" "coderco_alb" {
 
 #target group for load load_balancer
 resource "aws_lb_target_group" "coderco_alb" {
-  name                 = "coderco-tg"
-  port                 = 3000
-  protocol             = "HTTP"
-  vpc_id               = aws_vpc.coderco_vpc.id
+  name     = "coderco-tg"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.coderco_vpc.id
 
   deregistration_delay = 30
 
 }
 
-# #listener for load balancer.
-# resource "aws_lb_listener" "coderco_alb" {
-#   port              = "3000"
-#   protocol          = "HTTP"
-#   load_balancer_arn = aws_lb.coderco_alb.arn
-#   vpc_id            = aws_vpc.coderco_vpc.id
+#listener for load balancer.
+resource "aws_lb_listener" "coderco_alb" {
+  port              = "80"
+  protocol          = "HTTP"
+  load_balancer_arn = aws_lb.coderco_alb.arn
 
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.coderco_alb.arn
+  }
 
-# }
+}
