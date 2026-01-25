@@ -45,7 +45,13 @@ fider.sql
 
 
 #ignore
-#terraform.tfvars
+terraform.tfvars
 
 #ignore variables for now
-#variable.tf
+variable.tf
+
+#ignore secrets file
+secrets.tf
+
+#ignore
+db-init.tf
