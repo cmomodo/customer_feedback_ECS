@@ -3,6 +3,7 @@ resource "aws_cloudwatch_log_group" "app" {
   retention_in_days = 14
 }
 
+#iam role for cloudwatch logs
 resource "aws_iam_role_policy" "task_exec_logs" {
   name = "task-exec-logs"
   role = aws_iam_role.ecs_task_execution_role.id

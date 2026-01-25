@@ -43,7 +43,7 @@ variable "container_config" {
   })
   default = {
     name      = "fider"
-    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.2"
+    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
     cpu       = 256
     memory    = 512
     essential = true
@@ -60,7 +60,7 @@ variable "container_config" {
       },
       {
         name  = "DATABASE_URL"
-        value = "postgres://fider:Test1234!@terraform-20260125084235615700000002.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
+        value = "postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
       },
       {
         name  = "EMAIL_NOREPLY"
@@ -84,7 +84,7 @@ variable "container_config" {
       },
       {
         name  = "BASE_URL"
-        value = "http://coderco-alb-2020269749.us-east-1.elb.amazonaws.com"
+        value = "http://coderco-alb-1494063979.us-east-1.elb.amazonaws.com"
       },
       {
         name  = "GO_ENV"

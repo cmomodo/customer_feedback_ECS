@@ -26,12 +26,23 @@ resource "aws_lb_target_group" "coderco_alb" {
 
   deregistration_delay = 30
 
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/_health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    unhealthy_threshold = 2
+  }
 }
 
 #listener for load balancer.
 resource "aws_lb_listener" "coderco_alb" {
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
   load_balancer_arn = aws_lb.coderco_alb.arn
 
   default_action {

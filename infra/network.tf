@@ -34,9 +34,10 @@ resource "aws_route_table" "ecs_route_table" {
 
 #public subnet
 resource "aws_subnet" "primary_subnet" {
-  vpc_id            = aws_vpc.coderco_vpc.id
-  cidr_block        = "192.168.1.0/25"
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.coderco_vpc.id
+  cidr_block              = "192.168.1.0/25"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "main_subnet"
@@ -57,10 +58,11 @@ resource "aws_route_table_association" "secondary_subnet_association" {
 
 #public subnet 2
 resource "aws_subnet" "secondary_subnet" {
-  vpc_id            = aws_vpc.coderco_vpc.id
-  cidr_block        = "192.168.1.128/25"
-  availability_zone = "us-east-1b"
-  depends_on        = [aws_subnet.primary_subnet]
+  vpc_id                  = aws_vpc.coderco_vpc.id
+  cidr_block              = "192.168.1.128/25"
+  availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = true
+  depends_on              = [aws_subnet.primary_subnet]
 
   tags = {
     Name = "alb_subnet"
@@ -107,8 +109,8 @@ resource "aws_security_group" "rds_security_group" {
 
   ingress {
     protocol        = "tcp"
-    from_port       = 3306
-    to_port         = 3306
+    from_port       = 5432
+    to_port         = 5432
     security_groups = [aws_security_group.ecs_security_group.id]
   }
 
