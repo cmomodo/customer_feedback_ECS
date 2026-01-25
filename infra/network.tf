@@ -16,63 +16,27 @@ resource "aws_internet_gateway" "coderco-igw" {
   }
 }
 
-#default route table
-resource "aws_default_route_table" "route_table" {
-  default_route_table_id = aws_vpc.coderco_vpc.default_route_table_id
-
-  route {
-    cidr_block = "192.168.1.0/24"
-    gateway_id = aws_internet_gateway.coderco-igw.id
-  }
-
-  route {
-    ipv6_cidr_block = "::/0"
-  }
-
-  tags = {
-    Name = "default_route_table"
-  }
-}
-#attached gateway
-resource "aws_nat_gateway" "main_attach" {
-  subnet_id = aws_subnet.primary_subnet.id
-
-  tags = {
-    Name = "ecs_nat_gateway"
-  }
-}
-
-#secondary attachment
-resource "aws_nat_gateway" "secondary_attach" {
-  subnet_id = aws_subnet.secondary_subnet.id
-
-  tags = {
-    Name = "secondary_attach"
-  }
-}
 #route table for vpc.
 resource "aws_route_table" "ecs_route_table" {
   vpc_id = aws_vpc.coderco_vpc.id
 
   route {
-    cidr_block = "10.0.1.0/24"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.coderco-igw.id
   }
 
-  route {
-    ipv6_cidr_block = "::/0"
-  }
 
   tags = {
-    Name = "example"
+    Name = "coderco_rt"
   }
 }
 
 
 #public subnet
 resource "aws_subnet" "primary_subnet" {
-  vpc_id     = aws_vpc.coderco_vpc.id
-  cidr_block = "192.168.1.0/24"
+  vpc_id            = aws_vpc.coderco_vpc.id
+  cidr_block        = "192.168.1.0/25"
+  availability_zone = "us-east-1a"
 
   tags = {
     Name = "main_subnet"
@@ -93,8 +57,10 @@ resource "aws_route_table_association" "secondary_subnet_association" {
 
 #public subnet 2
 resource "aws_subnet" "secondary_subnet" {
-  vpc_id     = aws_vpc.coderco_vpc.id
-  cidr_block = "192.168.2.0/24"
+  vpc_id            = aws_vpc.coderco_vpc.id
+  cidr_block        = "192.168.1.128/25"
+  availability_zone = "us-east-1b"
+  depends_on        = [aws_subnet.primary_subnet]
 
   tags = {
     Name = "alb_subnet"
@@ -102,14 +68,25 @@ resource "aws_subnet" "secondary_subnet" {
 }
 
 #security group for ecs
-resource "aws_default_security_group" "ecs_security_group" {
+resource "aws_security_group" "ecs_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
   ingress {
-    protocol  = -1
+    protocol  = "tcp"
     self      = true
-    from_port = 0
-    to_port   = 0
+    from_port = 80
+    to_port   = 80
+    #allow ip address from range.
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol  = "tcp"
+    self      = true
+    from_port = 3000
+    to_port   = 3000
+    #allow container port access
+    cidr_blocks = ["192.168.1.0/24"]
   }
 
   egress {
@@ -118,18 +95,21 @@ resource "aws_default_security_group" "ecs_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "ecs_security_group"
+  }
 }
 
 #security group for rds
-resource "aws_default_security_group" "rds_security_group" {
+resource "aws_security_group" "rds_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
   ingress {
     protocol        = "tcp"
-    self            = true
     from_port       = 3306
     to_port         = 3306
-    security_groups = [aws_default_security_group.ecs_security_group.id]
+    security_groups = [aws_security_group.ecs_security_group.id]
   }
 
   egress {

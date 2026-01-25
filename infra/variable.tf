@@ -9,11 +9,13 @@ variable "container_definition" {
     essential = bool
   })
   default = {
-    name      = "fider"
-    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
-    cpu       = 10
-    memory    = 512
-    essential = true
+    name           = "fider"
+    image          = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
+    cpu            = 256
+    memory         = 512
+    essential      = true
+    awslogs-region = "us-east-1"
+
   }
 }
 
@@ -41,8 +43,8 @@ variable "container_config" {
   })
   default = {
     name      = "fider"
-    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
-    cpu       = 10
+    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.2"
+    cpu       = 256
     memory    = 512
     essential = true
     portMappings = [
@@ -58,7 +60,7 @@ variable "container_config" {
       },
       {
         name  = "DATABASE_URL"
-        value = "postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
+        value = "postgres://fider:Test1234!@terraform-20260125084235615700000002.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
       },
       {
         name  = "EMAIL_NOREPLY"
@@ -82,7 +84,7 @@ variable "container_config" {
       },
       {
         name  = "BASE_URL"
-        value = "http://fider-alb-1279660236.us-east-1.elb.amazonaws.com"
+        value = "http://coderco-alb-2020269749.us-east-1.elb.amazonaws.com"
       },
       {
         name  = "GO_ENV"
@@ -112,9 +114,21 @@ variable "container_config" {
     logConfiguration = {
       logDriver = "awslogs"
       options = {
-        "awslogs-group"         = "app"
+        "awslogs-group"         = "/ecs/my-app"
         "awslogs-stream-prefix" = "coder_ecs"
       }
     }
+  }
+}
+
+variable "aws_db_instance" {
+  description = "AWS RDS database instance credentials"
+  type = object({
+    username = string
+    password = string
+  })
+  default = {
+    username = "fider"
+    password = "Test1234!"
   }
 }

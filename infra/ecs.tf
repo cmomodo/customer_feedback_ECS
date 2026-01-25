@@ -13,32 +13,43 @@ resource "aws_ecs_service" "coderco_ecs" {
   cluster         = aws_ecs_cluster.coder_ecs.id
   task_definition = aws_ecs_task_definition.task_fider.arn
   desired_count   = 1
-  iam_role_arn    = aws_iam_role.ecs_task_execution_role.arn
-  depends_on      = [aws_iam_role_policy.ecs_task_execution_role_policy]
+  depends_on      = [aws_iam_role_policy.task_exec_logs]
 
-  launch_type = "EC2"
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.default.arn
-    container_name   = "fider"
-    container_port   = 3000
+  launch_type = "FARGATE"
+  network_configuration {
+    security_groups  = [aws_security_group.ecs_security_group.id]
+    subnets          = [aws_subnet.primary_subnet.id, aws_subnet.secondary_subnet.id]
+    assign_public_ip = true
   }
 
-  placement_constraints {
-    type       = "memberOf"
-    expression = "attribute:ecs.availability-zone in [\"us-west-2a\", \"us-west-2b\"]"
+  load_balancer {
+    target_group_arn = aws_lb_target_group.coderco_alb.arn
+    container_name   = "fider"
+    container_port   = 3000
   }
 }
 
 #task definition
 resource "aws_ecs_task_definition" "task_fider" {
-  family = "service"
+  family                   = "service"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+
   container_definitions = jsonencode([
     {
       name         = var.container_config.name
       image        = var.container_config.image
-      cpu          = var.container_config.cpu
-      memory       = var.container_config.memory
+      cpu          = 256
+      memory       = 512
       essential    = var.container_config.essential
       portMappings = var.container_config.portMappings
       environment  = var.container_config.environment
@@ -47,7 +58,8 @@ resource "aws_ecs_task_definition" "task_fider" {
         options = merge(
           var.container_config.logConfiguration.options,
           {
-            "awslogs-group" = aws_cloudwatch_log_group.app.name
+            "awslogs-group"  = aws_cloudwatch_log_group.app.name
+            "awslogs-region" = "us-east-1"
           }
         )
       }

@@ -48,4 +48,4 @@ fider.sql
 terraform.tfvars
 
 #ignore variables for now
-variables.tf
+variable.tf

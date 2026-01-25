@@ -1,6 +1,6 @@
 # CoderCo Assignment 1 - Open Source App Hosted on ECS with Terraform 🚀
 
-This project is based on Amazon's Threat Composer Tool, an open source tool designed to facilitate threat modeling and improve security assessments. You can explore the tool's dashboard here: Threat Composer Tool
+This project is based on Customer Feedback App, an open source tool designed to facilitate threat modeling and improve security assessments. You can explore the tool's dashboard here: Threat Composer Tool
 
 ### Task/Assignment 📝
 
@@ -23,7 +23,8 @@ yarn global add serve
 serve -s build
 
 #yarn start
-http://localhost:3000/workspaces/default/dashboard
+postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/postgres
+
 
 ## or
 
