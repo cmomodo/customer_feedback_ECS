@@ -41,8 +41,8 @@ resource "aws_lb_target_group" "coderco_alb" {
 
 #listener for load balancer.
 resource "aws_lb_listener" "coderco_alb" {
-  port              = "443"
-  protocol          = "HTTPS"
+  port              = "80"
+  protocol          = "HTTP"
   load_balancer_arn = aws_lb.coderco_alb.arn
 
   default_action {

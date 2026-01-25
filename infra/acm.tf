@@ -1,17 +1,17 @@
-resource "aws_acm_certificate" "cert" {
-  domain_name       = "ceedev.co.uk"
-  validation_method = "DNS"
-
-  tags = {
-    Environment = "test_ecs"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
+# Route 53 Zone
+data "aws_route53_zone" "primary" {
+  name = "ceedev.co.uk"
 }
 
-resource "aws_lb_listener_certificate" "certi" {
-  listener_arn    = aws_lb_listener.coderco_alb.arn
-  certificate_arn = aws_acm_certificate.cert.arn
+# A record pointing domain to ALB
+resource "aws_route53_record" "main" {
+  zone_id = data.aws_route53_zone.primary.zone_id
+  name    = "ceedev.co.uk"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.coderco_alb.dns_name
+    zone_id                = aws_lb.coderco_alb.zone_id
+    evaluate_target_health = true
+  }
 }
