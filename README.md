@@ -1,40 +1,50 @@
 # CoderCo Assignment 1 - Open Source App Hosted on ECS with Terraform 🚀
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate threat modeling and improve security assessments. You can explore the tool's dashboard here: Threat Composer Tool
+This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard here: sign up
 
 ### Task/Assignment 📝
 
-Create your own repository and complete the task there. You may create a app in your repo and copy all the files in this directory into it. Or alternatively, you can use this directory as is. Your choice.
+we were assigned to use one of the open source app avaialble and deploy it using terraform. The app i chosed was the cutomer feedback app. 
 
-Your task will be to create a container image for the app, push it to ECR (recommended) or DockerHub. Ideally, you should use a CI/CD pipeline to build, test, and push the container image.
+we will use a container image for the app, push it to ECR (recommended) or DockerHub. we will use a CI/CD pipeline to build, test, and push the container image.
 
 Deploy the app on ECS using Terraform. All the resources should be provisioned using Terraform. Use TF modules.
 
-Make sure the app is live on https://tm.<your-domain> or https://tm.labs.<your-domain>
+The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
 
-App must use HTTPS. Hosted on ECS. Figure out the rest. Once app is live, add screenshots to the README.md file.
-
-Add architecture diagram of how the infrastructure is setup. (Use Lucidchart or draw.io or mermaid) You are free to use any diagramming tool.
-
-Local app setup 💻
-yarn install
-yarn build
-yarn global add serve
-serve -s build
-
-#yarn start
-postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/postgres
+## System Design
+![System Design Diagram](./images/ecs_p1.png)
 
 
-## or
 
-yarn global add serve
-serve -s build
-Useful links 🔗
-Terraform AWS Registry
-Terraform AWS ECS
-Terraform Docs
-ECS Docs
-Advice & Tips �
-This is just a simple app, you may use another app if you'd like.
-Use best practices for your Terraform code. Use best practices for your container image. Use best practices for your CI/CD pipeline.
+## structure 
+```
+.
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── terraform.tfvars
+├── modules/
+│   ├── ecr/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── ecs/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── vpc/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+```
+
+## build app
+terraform init
+
+terraform plan 
+
+terraform apply
+
+## Health check confirmation 
+![Health Check Confirmation](./images/health_check.png)
