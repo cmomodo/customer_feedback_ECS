@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
+}
+
 # Container definition variable
 variable "container_definition" {
   description = "Container definition for the ECS task"

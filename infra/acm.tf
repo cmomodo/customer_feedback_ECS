@@ -5,9 +5,9 @@ data "aws_route53_zone" "primary" {
 
 # SSL Certificate for HTTPS
 resource "aws_acm_certificate" "coderco_cert" {
-  domain_name       = "ceedev.co.uk"
+  domain_name               = "ceedev.co.uk"
   subject_alternative_names = ["*.ceedev.co.uk"]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   tags = {
     Name = "coderco-cert"
@@ -38,7 +38,7 @@ resource "aws_route53_record" "coderco_cert_validation" {
 
 # Wait for certificate to be validated
 resource "aws_acm_certificate_validation" "coderco_cert" {
-  certificate_arn           = aws_acm_certificate.coderco_cert.arn
+  certificate_arn = aws_acm_certificate.coderco_cert.arn
   timeouts {
     create = "5m"
   }
