@@ -90,7 +90,7 @@ variable "container_config" {
       },
       {
         name  = "BASE_URL"
-        value = "http://coderco-alb-1494063979.us-east-1.elb.amazonaws.com"
+        value = "https://ceedev.co.uk"
       },
       {
         name  = "GO_ENV"
