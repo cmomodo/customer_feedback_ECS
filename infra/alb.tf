@@ -39,17 +39,35 @@ resource "aws_lb_target_group" "coderco_alb" {
   }
 }
 
-#listener for load balancer.
+#listener for load balancer - HTTPS on 443
 resource "aws_lb_listener" "coderco_alb" {
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
   load_balancer_arn = aws_lb.coderco_alb.arn
+  certificate_arn   = aws_acm_certificate.coderco_cert.arn
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.coderco_alb.arn
   }
 
+}
+
+# HTTP to HTTPS redirect
+resource "aws_lb_listener" "coderco_alb_http_redirect" {
+  port              = "80"
+  protocol          = "HTTP"
+  load_balancer_arn = aws_lb.coderco_alb.arn
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
 }
 
 #output for load balancer

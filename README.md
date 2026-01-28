@@ -1,23 +1,23 @@
-# CoderCo Assignment 1 - Open Source App Hosted on ECS with Terraform 🚀
+# CoderCo Assignment 1 - Open Source App Hosted on ECS with Terraform
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard here: sign up
+This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up.
 
-### Task/Assignment 📝
+### Task/Assignment
 
-we were assigned to use one of the open source app avaialble and deploy it using terraform. The app i chosed was the cutomer feedback app. 
+We were assigned to deploy an open source app using Terraform. The app chosen was the Customer Feedback App.
 
-we will use a container image for the app, push it to ECR (recommended) or DockerHub. we will use a CI/CD pipeline to build, test, and push the container image.
+We use a container image for the app, push it to ECR (recommended) or DockerHub, and use a CI/CD pipeline to build, test, and push the container image.
 
 Deploy the app on ECS using Terraform. All the resources should be provisioned using Terraform. Use TF modules.
 
 The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
 
 ## System Design
-![System Design Diagram](./images/ecs_p1.png)
+![System Design Diagram](./Images/ecs_p1.png)
 
 
 
-## structure 
+## Structure 
 ```
 .
 ├── main.tf
@@ -39,12 +39,13 @@ The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
 │       └── outputs.tf
 ```
 
-## build app
+## Build App
+
+```bash
 terraform init
-
-terraform plan 
-
+terraform plan
 terraform apply
+```
 
-## Health check confirmation 
-![Health Check Confirmation](./images/health_check.png)
+## Health Check Confirmation
+![Health Check Confirmation](./Images/health_check.png)

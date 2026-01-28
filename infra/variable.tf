@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
+}
+
 # Container definition variable
 variable "container_definition" {
   description = "Container definition for the ECS task"
@@ -84,7 +90,7 @@ variable "container_config" {
       },
       {
         name  = "BASE_URL"
-        value = "http://coderco-alb-1494063979.us-east-1.elb.amazonaws.com"
+        value = "https://ceedev.co.uk"
       },
       {
         name  = "GO_ENV"

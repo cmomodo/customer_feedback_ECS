@@ -85,6 +85,15 @@ resource "aws_security_group" "ecs_security_group" {
   ingress {
     protocol  = "tcp"
     self      = true
+    from_port = 443
+    to_port   = 443
+    #allow HTTPS access
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol  = "tcp"
+    self      = true
     from_port = 3000
     to_port   = 3000
     #allow container port access
