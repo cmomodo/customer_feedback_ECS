@@ -49,7 +49,7 @@ variable "container_config" {
     #environment secrets
     secrets = list(object({
       name  = string
-      value = string  
+      value = string
     }))
   })
   default = {
