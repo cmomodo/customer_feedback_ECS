@@ -7,8 +7,8 @@ resource "aws_db_instance" "default" {
   engine                 = "postgres"
   engine_version         = "17.6"
   instance_class         = "db.t3.micro"
-  username               = var.aws_db_instance.username
-  password               = var.aws_db_instance.password
+  username               = local.db_username
+  password               = local.db_password
   parameter_group_name   = "default.postgres17"
   skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.rds_security_group.id]

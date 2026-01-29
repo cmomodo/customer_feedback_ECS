@@ -52,7 +52,9 @@ resource "aws_ecs_task_definition" "task_fider" {
       memory       = 512
       essential    = var.container_config.essential
       portMappings = var.container_config.portMappings
+      secrets      = var.container_config.secrets
       environment  = var.container_config.environment
+
       logConfiguration = {
         logDriver = var.container_config.logConfiguration.logDriver
         options = merge(
@@ -64,5 +66,6 @@ resource "aws_ecs_task_definition" "task_fider" {
         )
       }
     }
+
   ])
 }

@@ -45,7 +45,12 @@ variable "container_config" {
     logConfiguration = object({
       logDriver = string
       options   = map(string)
-    })
+    }),
+    #environment secrets
+    secrets = list(object({
+      name  = string
+      value = string  
+    }))
   })
   default = {
     name      = "fider"
@@ -60,11 +65,9 @@ variable "container_config" {
       }
     ]
     environment = [
+
       {
-        name  = "JWT_SECRET"
-        value = "hsjl]W;&ZcHxT&FK;s%bgIQF:#ch=~#Al4:5]N;7V<qPZ3e9lT4'%;go;LIkc%k"
-      },
-      {
+
         name  = "DATABASE_URL"
         value = "postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
       },
@@ -124,17 +127,8 @@ variable "container_config" {
         "awslogs-stream-prefix" = "coder_ecs"
       }
     }
-  }
-}
 
-variable "aws_db_instance" {
-  description = "AWS RDS database instance credentials"
-  type = object({
-    username = string
-    password = string
-  })
-  default = {
-    username = "fider"
-    password = "Test1234!"
+    #secret
+    secrets = []
   }
 }

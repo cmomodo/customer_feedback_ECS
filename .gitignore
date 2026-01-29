@@ -58,3 +58,6 @@ db-init.tf
 
 #ignore generated diagram
 generated-diagrams
+
+#ignore
+locals.tf
