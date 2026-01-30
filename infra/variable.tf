@@ -47,10 +47,10 @@ variable "container_config" {
       options   = map(string)
     }),
     #environment secrets
-    secrets = list(object({
+    secrets = optional(list(object({
       name  = string
       value = string
-    }))
+    })), [])
   })
   default = {
     name      = "fider"

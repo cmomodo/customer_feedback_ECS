@@ -52,7 +52,12 @@ resource "aws_ecs_task_definition" "task_fider" {
       memory       = 512
       essential    = var.container_config.essential
       portMappings = var.container_config.portMappings
-      secrets      = var.container_config.secrets
+      secrets      = concat(var.container_config.secrets, [
+        {
+          name      = local.jwt_secret_name
+          valueFrom = aws_secretsmanager_secret.task_encrypt.arn
+        }
+      ])
       environment  = var.container_config.environment
 
       logConfiguration = {

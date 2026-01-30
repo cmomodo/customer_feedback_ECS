@@ -3,7 +3,7 @@ resource "aws_db_instance" "default" {
   depends_on             = [aws_security_group.rds_security_group]
   identifier             = "fider-db"
   allocated_storage      = 20
-  db_name                = "fiderdb"
+  db_name                = "fider"
   engine                 = "postgres"
   engine_version         = "17.6"
   instance_class         = "db.t3.micro"

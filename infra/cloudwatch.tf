@@ -28,6 +28,13 @@ resource "aws_iam_role_policy" "task_exec_logs" {
           "ecr:BatchGetImage"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = "arn:aws:secretsmanager:us-east-1:449095351082:secret:task_ecnrtyption-*"
       }
     ]
   })
