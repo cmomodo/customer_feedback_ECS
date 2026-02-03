@@ -1,7 +1,17 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+}
+
+variable "image_tag" {
+  description = "Docker image tag for the ECR repository"
+  type        = string
+  default     = "1.0.1"
+}
+
+variable "base_url" {
+  description = "The base URL for the application"
+  type        = string
 }
 
 # Container definition variable
@@ -67,9 +77,8 @@ variable "container_config" {
     environment = [
 
       {
-
         name  = "DATABASE_URL"
-        value = "postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
+        value = "postgres://user:password@host:5432/dbname"
       },
       {
         name  = "EMAIL_NOREPLY"
@@ -90,10 +99,6 @@ variable "container_config" {
       {
         name  = "EMAIL_SMTP_PASSWORD"
         value = "testpass"
-      },
-      {
-        name  = "BASE_URL"
-        value = "https://ceedev.co.uk"
       },
       {
         name  = "GO_ENV"

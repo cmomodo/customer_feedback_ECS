@@ -20,7 +20,7 @@ resource "aws_db_instance" "default" {
 #subnet group
 resource "aws_db_subnet_group" "default" {
   name       = "main"
-  subnet_ids = [aws_subnet.primary_subnet.id, aws_subnet.secondary_subnet.id]
+  subnet_ids = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
 
   tags = {
     Name = "My DB subnet group"

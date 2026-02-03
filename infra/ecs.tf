@@ -58,7 +58,11 @@ resource "aws_ecs_task_definition" "task_fider" {
           valueFrom = aws_secretsmanager_secret.task_encrypt.arn
         }
       ])
-      environment = var.container_config.environment
+      environment = [
+        for env in var.container_config.environment :
+        env.name == "BASE_URL" ? { name = "BASE_URL", value = var.base_url } :
+        env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = local.database_url } : env
+      ]
 
       logConfiguration = {
         logDriver = var.container_config.logConfiguration.logDriver
