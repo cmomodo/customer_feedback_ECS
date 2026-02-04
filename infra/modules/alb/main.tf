@@ -3,11 +3,10 @@ resource "aws_lb" "coderco_alb" {
   name               = "coderco-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.ecs_security_group.id]
-  subnets            = [aws_subnet.secondary_subnet.id, aws_subnet.primary_subnet.id]
+  security_groups    = [var.security_group_id]
+  subnets            = var.subnet_ids
 
   enable_deletion_protection = false
-  depends_on                 = [aws_vpc.coderco_vpc]
 
 
 
@@ -21,7 +20,7 @@ resource "aws_lb_target_group" "coderco_alb" {
   name        = "coderco-tg"
   port        = 3000
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.coderco_vpc.id
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   deregistration_delay = 30
@@ -44,7 +43,7 @@ resource "aws_lb_listener" "coderco_alb" {
   port              = "443"
   protocol          = "HTTPS"
   load_balancer_arn = aws_lb.coderco_alb.arn
-  certificate_arn   = aws_acm_certificate.coderco_cert.arn
+  certificate_arn   = var.certificate_arn
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {

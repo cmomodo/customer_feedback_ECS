@@ -61,3 +61,20 @@ generated-diagrams
 
 #ignore
 locals.tf
+
+#ignore secrets node_modules
+secrets/
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+plan.json
+*.pem
+*.key

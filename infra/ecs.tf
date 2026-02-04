@@ -1,80 +1,31 @@
-resource "aws_ecs_cluster" "coder_ecs" {
-  name = "customer_feedback"
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-  }
+#calling ecs module
+locals {
+  database_url = "postgres://${module.secrets.db_username}:${module.secrets.db_password}@${module.rds.rds_endpoint}/${module.rds.db_name}"
 }
 
-#service
-resource "aws_ecs_service" "coderco_ecs" {
-  name            = "runner_one"
-  cluster         = aws_ecs_cluster.coder_ecs.id
-  task_definition = aws_ecs_task_definition.task_fider.arn
-  desired_count   = 1
-  depends_on      = [aws_iam_role_policy.task_exec_logs]
+module "ecs" {
+  source   = "./modules/ecs"
+  base_url = var.base_url
 
-  launch_type = "FARGATE"
-  network_configuration {
-    security_groups  = [aws_security_group.ecs_security_group.id]
-    subnets          = [aws_subnet.primary_subnet.id, aws_subnet.secondary_subnet.id]
-    assign_public_ip = true
-  }
+  ecs_security_group_id = module.vpc.ecs_security_group
+  subnet_ids = [
+    module.vpc.primary_subnet_id,
+    module.vpc.secondary_subnet_id
+  ]
+  target_group_arn = module.alb.target_group_arn
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.coderco_alb.arn
-    container_name   = "fider"
-    container_port   = 3000
-  }
-}
+  execution_role_arn = module.iam.ecs_task_execution_role_arn
+  task_role_arn      = module.iam.ecs_task_execution_role_arn
+  log_group_name     = module.iam.log_group_name
 
-#task definition
-resource "aws_ecs_task_definition" "task_fider" {
-  family                   = "service"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
+  task_secret_arn = module.secrets.task_secret_arn
+  jwt_secret_name = module.secrets.jwt_secret_name
+  database_url    = local.database_url
 
-  runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
-  }
-
-  container_definitions = jsonencode([
-    {
-      name         = var.container_config.name
-      image        = var.container_config.image
-      cpu          = 256
-      memory       = 512
-      essential    = var.container_config.essential
-      portMappings = var.container_config.portMappings
-      secrets = concat(var.container_config.secrets, [
-        {
-          name      = local.jwt_secret_name
-          valueFrom = aws_secretsmanager_secret.task_encrypt.arn
-        }
-      ])
-      environment = [
-        for env in var.container_config.environment :
-        env.name == "BASE_URL" ? { name = "BASE_URL", value = var.base_url } :
-        env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = local.database_url } : env
-      ]
-
-      logConfiguration = {
-        logDriver = var.container_config.logConfiguration.logDriver
-        options = merge(
-          var.container_config.logConfiguration.options,
-          {
-            "awslogs-group"  = aws_cloudwatch_log_group.app.name
-            "awslogs-region" = "us-east-1"
-          }
-        )
-      }
-    }
-
-  ])
+  depends_on = [
+    module.iam,
+    module.alb,
+    module.secrets,
+    module.rds
+  ]
 }

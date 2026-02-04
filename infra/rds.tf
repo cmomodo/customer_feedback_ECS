@@ -1,33 +1,8 @@
-resource "aws_db_instance" "default" {
-
-  depends_on             = [aws_security_group.rds_security_group]
-  identifier             = "fider-db"
-  allocated_storage      = 20
-  db_name                = "fider"
-  engine                 = "postgres"
-  engine_version         = "17.6"
-  instance_class         = "db.t3.micro"
-  username               = local.db_username
-  password               = local.db_password
-  parameter_group_name   = "default.postgres17"
-  skip_final_snapshot    = true
-  vpc_security_group_ids = [aws_security_group.rds_security_group.id]
-  db_subnet_group_name   = aws_db_subnet_group.default.name
-  publicly_accessible    = false
-
-}
-
-#subnet group
-resource "aws_db_subnet_group" "default" {
-  name       = "main"
-  subnet_ids = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
-
-  tags = {
-    Name = "My DB subnet group"
-  }
-}
-
-#rds output
-output "rds_endpoint" {
-  value = aws_db_instance.default.endpoint
+module "rds" {
+  source = "./modules/rds"
+  rds_security_group_id       = module.vpc.rds_security_group
+  private_subnet_ids          = module.vpc.private_subnet_ids
+  db_username                 = module.secrets.db_username
+  db_password                 = module.secrets.db_password
+  ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
 }
