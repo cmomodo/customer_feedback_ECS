@@ -1,5 +1,5 @@
 module "rds" {
-  source = "./modules/rds"
+  source                      = "./modules/rds"
   rds_security_group_id       = module.vpc.rds_security_group
   private_subnet_ids          = module.vpc.private_subnet_ids
   db_username                 = module.secrets.db_username
