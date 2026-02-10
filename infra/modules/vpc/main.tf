@@ -1,6 +1,6 @@
 # Create a VPC
 resource "aws_vpc" "coderco_vpc" {
-
+  cidr_block = var.cidr_block
   tags = {
     Name = "coderco-vpc"
   }
@@ -58,6 +58,7 @@ resource "aws_route_table_association" "secondary_subnet_association" {
 #public subnet 2
 resource "aws_subnet" "secondary_subnet" {
   vpc_id                  = aws_vpc.coderco_vpc.id
+  cidr_block              = var.secondary_public_subnet
   availability_zone       = "us-east-1b"
   map_public_ip_on_launch = true
   depends_on              = [aws_subnet.primary_subnet]
@@ -70,6 +71,7 @@ resource "aws_subnet" "secondary_subnet" {
 # Private subnets for RDS (no internet access)
 resource "aws_subnet" "private_subnet_1" {
   vpc_id            = aws_vpc.coderco_vpc.id
+  cidr_block        = var.private_subnet_1_cidr
   availability_zone = "us-east-1a"
 
   tags = {
@@ -80,6 +82,7 @@ resource "aws_subnet" "private_subnet_1" {
 #private subnet for ecs
 resource "aws_subnet" "private_subnet_2" {
   vpc_id            = aws_vpc.coderco_vpc.id
+  cidr_block        = var.private_subnet_2_cidr
   availability_zone = "us-east-1b"
 
   tags = {

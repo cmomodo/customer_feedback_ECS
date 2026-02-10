@@ -18,6 +18,26 @@ variable "vpc_cidr" {
   type        = string
 }
 
+variable "primary_subnet_cidr" {
+  description = "CIDR block for the primary public subnet"
+  type        = string
+}
+
+variable "secondary_subnet_cidr" {
+  description = "CIDR block for the secondary public subnet"
+  type        = string
+}
+
+variable "private_subnet_1_cidr" {
+  description = "CIDR block for the first private subnet"
+  type        = string
+}
+
+variable "private_subnet_2_cidr" {
+  description = "CIDR block for the second private subnet"
+  type        = string
+}
+
 variable "container_port" {
   description = "Container port for ECS service and ALB target group"
   type        = number
