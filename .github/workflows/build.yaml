@@ -28,5 +28,5 @@ jobs:
           REPOSITORY: fider
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ./app/fider-main
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
