@@ -1,19 +1,10 @@
-package terraform.analysis
+package terraform.policies.public_ingress
 
-import input as tfplan
+import input.plan as plan
 
-
-
-#no securiyt group ports should be left wide open
-deny_open_security_group_ports[resource] {
-    resource := tfplan.resource_changes[resource_id]
-    resource.type == "aws_security_group_rule"
-    resource.change.after.cidr_blocks[_] == "0.0.0.0/0"
-    message := sprintf("Security group rule %v allows open access from anywhere (0.0.0.0/0)", resource.change.after.security_group_id)
-    resource := {
-        "id": resource_id,
-        "message": message
-
-
-}   
-
+deny[msg] {
+  r := plan.resource_changes[_]
+  r.type == "aws_security_group"
+  r.change.after.ingress[_].cidr_blocks[_] == "0.0.0.0/0"
+  msg := sprintf("%v has 0.0.0.0/0 as allowed ingress", [r.address])
+}

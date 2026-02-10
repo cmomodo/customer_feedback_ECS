@@ -24,7 +24,7 @@ resource "aws_ecs_service" "coderco_ecs" {
   load_balancer {
     target_group_arn = var.target_group_arn
     container_name   = "fider"
-    container_port   = 3000
+    container_port   = var.container_port
   }
 }
 

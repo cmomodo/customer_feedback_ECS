@@ -8,6 +8,22 @@ variable "base_url" {
   type        = string
 }
 
+variable "domain_name" {
+  description = "Domain name for Route53/ACM"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+}
+
+variable "container_port" {
+  description = "Container port for ECS service and ALB target group"
+  type        = number
+  default     = 3000
+}
+
 variable "environment" {
   description = "Extra environment variables for the app"
   type = list(object({
@@ -15,26 +31,4 @@ variable "environment" {
     value = string
   }))
   default = []
-}
-
-#primary subnet
-variable "primary_subnet" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-#secondary public subnet
-variable "secondary_public_subnet" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-variable "private_subnet_1_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-variable "private_subnet_2_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
 }

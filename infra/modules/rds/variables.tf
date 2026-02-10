@@ -24,7 +24,36 @@ variable "db_name" {
   default     = "fider"
 }
 
+variable "db_identifier" {
+  description = "RDS instance identifier"
+  type        = string
+}
+
 variable "ecs_task_execution_role_arn" {
   description = "ECS task execution role ARN used for DB init task"
   type        = string
+}
+
+variable "public_accessible" {
+  description = "Whether the RDS instance should be publicly accessible"
+  type        = bool
+  default     = false
+}
+
+variable "engine" {
+  description = "Database engine"
+  type        = string
+  default     = "postgres"
+}
+
+variable "engine_version" {
+  description = "Database engine version"
+  type        = string
+  default     = "17.6"
+}
+
+variable "instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
 }

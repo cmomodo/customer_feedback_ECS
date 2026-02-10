@@ -1,12 +1,12 @@
 # Route 53 Zone
 data "aws_route53_zone" "primary" {
-  name = "ceedev.co.uk"
+  name = var.domain_name
 }
 
 # SSL Certificate for HTTPS
 resource "aws_acm_certificate" "coderco_cert" {
-  domain_name               = "ceedev.co.uk"
-  subject_alternative_names = ["*.ceedev.co.uk"]
+  domain_name               = var.domain_name
+  subject_alternative_names = ["*.${var.domain_name}"]
   validation_method         = "DNS"
 
   tags = {

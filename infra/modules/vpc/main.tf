@@ -1,28 +1,21 @@
-locals {
-  common_tags = var.tags
-}
-
 # Create a VPC
 resource "aws_vpc" "coderco_vpc" {
-  cidr_block           = var.cidr_block
-  enable_dns_support   = true
-  enable_dns_hostnames = true
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "coderco-vpc"
-  })
+  }
 }
 
-# Internet gateway
+#internet gateway
 resource "aws_internet_gateway" "coderco_igw" {
   vpc_id = aws_vpc.coderco_vpc.id
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "ecs_internet_gateway"
-  })
+  }
 }
 
-# Public route table (default route to IGW)
+#route table for vpc.
 resource "aws_route_table" "ecs_route_table" {
   vpc_id = aws_vpc.coderco_vpc.id
 
@@ -31,75 +24,78 @@ resource "aws_route_table" "ecs_route_table" {
     gateway_id = aws_internet_gateway.coderco_igw.id
   }
 
-  tags = merge(local.common_tags, {
+
+  tags = {
     Name = "coderco_rt"
-  })
+  }
 }
 
-# Public subnet 1
+
+#public subnet
 resource "aws_subnet" "primary_subnet" {
   vpc_id                  = aws_vpc.coderco_vpc.id
   cidr_block              = var.primary_subnet
-  availability_zone       = var.availability_zones[0]
+  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "main_subnet"
-  })
+  }
 }
 
+#first subnet primary_subnet_association
 resource "aws_route_table_association" "primary_subnet_association" {
   subnet_id      = aws_subnet.primary_subnet.id
   route_table_id = aws_route_table.ecs_route_table.id
 }
 
-# Public subnet 2
-resource "aws_subnet" "secondary_subnet" {
-  vpc_id                  = aws_vpc.coderco_vpc.id
-  cidr_block              = var.secondary_public_subnet
-  availability_zone       = var.availability_zones[1]
-  map_public_ip_on_launch = true
-
-  tags = merge(local.common_tags, {
-    Name = "alb_subnet"
-  })
-}
-
+#secondary subnet association
 resource "aws_route_table_association" "secondary_subnet_association" {
   subnet_id      = aws_subnet.secondary_subnet.id
   route_table_id = aws_route_table.ecs_route_table.id
 }
 
-# Private subnet 1
+#public subnet 2
+resource "aws_subnet" "secondary_subnet" {
+  vpc_id                  = aws_vpc.coderco_vpc.id
+  availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = true
+  depends_on              = [aws_subnet.primary_subnet]
+
+  tags = {
+    Name = "alb_subnet"
+  }
+}
+
+# Private subnets for RDS (no internet access)
 resource "aws_subnet" "private_subnet_1" {
   vpc_id            = aws_vpc.coderco_vpc.id
-  cidr_block        = var.private_subnet_1_cidr
-  availability_zone = var.availability_zones[0]
+  availability_zone = "us-east-1a"
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "private_subnet_1"
-  })
+  }
 }
 
-# Private subnet 2
+#private subnet for ecs
 resource "aws_subnet" "private_subnet_2" {
   vpc_id            = aws_vpc.coderco_vpc.id
-  cidr_block        = var.private_subnet_2_cidr
-  availability_zone = var.availability_zones[1]
+  availability_zone = "us-east-1b"
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "private_subnet_2"
-  })
+  }
 }
 
-# Private route table (no default route to IGW; add NAT/VPC endpoints if needed)
+# Private route table (no internet gateway route)
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.coderco_vpc.id
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "private_rt"
-  })
+  }
 }
+
 
 resource "aws_route_table_association" "private_subnet_1_association" {
   subnet_id      = aws_subnet.private_subnet_1.id
@@ -111,57 +107,54 @@ resource "aws_route_table_association" "private_subnet_2_association" {
   route_table_id = aws_route_table.private_route_table.id
 }
 
-# Security group for ECS / app (basic example)
+#security group for ecs
 resource "aws_security_group" "ecs_security_group" {
-  name        = "ecs_security_group"
-  description = "Security group for ECS tasks/services"
-  vpc_id      = aws_vpc.coderco_vpc.id
+  vpc_id = aws_vpc.coderco_vpc.id
 
   ingress {
-    description = "HTTP"
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
+    protocol  = "tcp"
+    self      = true
+    from_port = 80
+    to_port   = 80
+    #allow ip address from range.
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "HTTPS"
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
+    protocol  = "tcp"
+    self      = true
+    from_port = 443
+    to_port   = 443
+    #allow HTTPS access
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "App port (example)"
-    protocol    = "tcp"
-    from_port   = 3000
-    to_port     = 3000
-    cidr_blocks = [var.cidr_block]
+    protocol  = "tcp"
+    self      = true
+    from_port = 3000
+    to_port   = 3000
+    #allow container port access
+    cidr_blocks = ["192.168.1.0/24"]
   }
 
   egress {
-    description = "All outbound"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "ecs_security_group"
-  })
+  }
 }
 
-# Security group for RDS
+#security group for rds
 resource "aws_security_group" "rds_security_group" {
-  name        = "rds_security_group"
-  description = "Security group for RDS; allows Postgres from ECS SG"
-  vpc_id      = aws_vpc.coderco_vpc.id
+  vpc_id = aws_vpc.coderco_vpc.id
 
   ingress {
-    description     = "Postgres from ECS"
     protocol        = "tcp"
     from_port       = 5432
     to_port         = 5432
@@ -169,14 +162,13 @@ resource "aws_security_group" "rds_security_group" {
   }
 
   egress {
-    description = "All outbound"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, {
+  tags = {
     Name = "rds_security_group"
-  })
+  }
 }

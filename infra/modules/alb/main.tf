@@ -10,15 +10,13 @@ resource "aws_lb" "coderco_alb" {
 
 
 
-  tags = {
-    Environment = "test"
-  }
+  # Tags are applied via provider default_tags.
 }
 
 #target group for load load_balancer
 resource "aws_lb_target_group" "coderco_alb" {
   name        = "coderco-tg"
-  port        = 3000
+  port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
