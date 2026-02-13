@@ -52,3 +52,8 @@ variable "environment" {
   }))
   default = []
 }
+
+variable "github_repo" {
+  description = "GitHub repository in format 'owner/repo' for OIDC"
+  type        = string
+}

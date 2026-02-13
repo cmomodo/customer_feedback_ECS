@@ -66,7 +66,8 @@ module "alb" {
 }
 
 module "iam" {
-  source = "./modules/iam"
+  source      = "./modules/iam"
+  github_repo = var.github_repo
 }
 
 locals {

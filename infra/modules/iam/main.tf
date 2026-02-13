@@ -1,3 +1,64 @@
+# GitHub OIDC Provider
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+# GitHub OIDC Role for CI/CD
+resource "aws_iam_role" "github_oidc" {
+  name = "github_oidc_portfolio"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.github.arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+        }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
+        }
+      }
+    }]
+  })
+}
+
+# Attach policies for ECR, ECS, and Terraform operations
+resource "aws_iam_role_policy" "github_oidc_policy" {
+  name = "github-oidc-policy"
+  role = aws_iam_role.github_oidc.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:*",
+          "ecs:*",
+          "ec2:*",
+          "elasticloadbalancing:*",
+          "rds:*",
+          "secretsmanager:*",
+          "logs:*",
+          "iam:*",
+          "acm:*",
+          "route53:*",
+          "s3:*",
+          "dynamodb:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/my-app"
   retention_in_days = 14
@@ -34,7 +95,7 @@ resource "aws_iam_role_policy" "task_exec_logs" {
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = "arn:aws:secretsmanager:us-east-1:449095351082:secret:task_ecnrtyption-*"
+        Resource = "arn:aws:secretsmanager:us-east-1:449095351082:secret:task_encryption-*"
       }
     ]
   })
