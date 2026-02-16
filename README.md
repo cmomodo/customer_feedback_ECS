@@ -49,3 +49,6 @@ terraform apply
 
 ## Health Check Confirmation
 ![Health Check Confirmation](./Images/health_check.png)
+
+#Feature improvements
+we will add cognito to allow authentication and authorization

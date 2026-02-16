@@ -18,6 +18,14 @@ resource "aws_route53_record" "main" {
 
 module "secrets" {
   source = "./modules/secrets"
+
+  db_username           = var.db_username
+  db_password           = var.db_password
+  db_name               = var.db_name
+  db_identifier         = var.db_identifier
+  jwt_secret            = var.jwt_secret
+  identifier_username   = var.identifier_username
+  identifier_password   = var.identifier_password
 }
 
 module "vpc" {

@@ -34,8 +34,26 @@ jobs:
 
       - name: Plan Terraform
         working-directory: ./infra
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
+          TF_VAR_db_identifier: ${{ secrets.DB_IDENTIFIER }}
+          TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
+          TF_VAR_identifier_username: ${{ secrets.IDENTIFIER_USERNAME }}
+          TF_VAR_identifier_password: ${{ secrets.IDENTIFIER_PASSWORD }}
+          TF_VAR_secondary_subnet_cidr: ${{ secrets.SECONDARY_SUBNET_CIDR }}
         run: terraform plan
 
       - name: Apply Terraform
         working-directory: ./infra
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
+          TF_VAR_db_identifier: ${{ secrets.DB_IDENTIFIER }}
+          TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
+          TF_VAR_identifier_username: ${{ secrets.IDENTIFIER_USERNAME }}
+          TF_VAR_identifier_password: ${{ secrets.IDENTIFIER_PASSWORD }}
+          TF_VAR_secondary_subnet_cidr: ${{ secrets.SECONDARY_SUBNET_CIDR }}
         run: terraform apply -auto-approve

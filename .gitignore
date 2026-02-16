@@ -62,8 +62,8 @@ generated-diagrams
 #ignore
 locals.tf
 
-#ignore secrets node_modules
-secrets/
+#ignore secrets node_modules in app directory
+app/secrets/
 
 .terraform/
 *.tfstate
