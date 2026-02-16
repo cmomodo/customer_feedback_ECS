@@ -6,33 +6,21 @@ variable "cidr_block" {
 variable "primary_subnet" {
   description = "CIDR block for the primary public subnet"
   type        = string
-  default     = null
-  nullable    = false
 }
 
 variable "secondary_public_subnet" {
   description = "CIDR block for the secondary public subnet"
   type        = string
-  default     = null
-  nullable    = false
-
 }
 
 variable "private_subnet_1_cidr" {
   description = "CIDR block for the first private subnet"
   type        = string
-  default     = null
-  nullable    = false
-
-
 }
 
 variable "private_subnet_2_cidr" {
   description = "CIDR block for the second private subnet"
   type        = string
-  default     = null
-  nullable    = false
-
 }
 
 variable "availability_zones" {
