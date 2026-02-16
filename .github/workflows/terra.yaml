@@ -26,7 +26,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.0
+          terraform_version: 1.9.0
 
       - name: Initialize Terraform
         working-directory: ./infra
@@ -43,6 +43,8 @@ jobs:
           TF_VAR_identifier_username: ${{ secrets.IDENTIFIER_USERNAME }}
           TF_VAR_identifier_password: ${{ secrets.IDENTIFIER_PASSWORD }}
           TF_VAR_secondary_subnet_cidr: ${{ secrets.SECONDARY_SUBNET_CIDR }}
+          TF_VAR_private_subnet_1_cidr: ${{ secrets.PRIVATE_SUBNET_1_CIDR }}
+          TF_VAR_private_subnet_2_cidr: ${{ secrets.PRIVATE_SUBNET_2_CIDR }}
         run: terraform plan
 
       - name: Apply Terraform
@@ -56,4 +58,6 @@ jobs:
           TF_VAR_identifier_username: ${{ secrets.IDENTIFIER_USERNAME }}
           TF_VAR_identifier_password: ${{ secrets.IDENTIFIER_PASSWORD }}
           TF_VAR_secondary_subnet_cidr: ${{ secrets.SECONDARY_SUBNET_CIDR }}
+          TF_VAR_private_subnet_1_cidr: ${{ secrets.PRIVATE_SUBNET_1_CIDR }}
+          TF_VAR_private_subnet_2_cidr: ${{ secrets.PRIVATE_SUBNET_2_CIDR }}
         run: terraform apply -auto-approve
