@@ -52,3 +52,4 @@ terraform apply
 
 #Feature improvements
 we will add cognito to allow authentication and authorization
+we will be using the count for private subnets since they only used for rds.
