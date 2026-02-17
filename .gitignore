@@ -48,11 +48,6 @@ fider.sql
 terraform.tfvars
 
 
-
-
-#ignore
-db-init.tf
-
 #ignore generated diagram
 generated-diagrams
 
