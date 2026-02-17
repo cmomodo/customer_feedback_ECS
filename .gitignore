@@ -47,11 +47,8 @@ fider.sql
 #ignore
 terraform.tfvars
 
-#ignore variables for now
-variable.tf
 
-#ignore secrets file
-secrets.tf
+
 
 #ignore
 db-init.tf
@@ -59,8 +56,7 @@ db-init.tf
 #ignore generated diagram
 generated-diagrams
 
-#ignore
-locals.tf
+
 
 #ignore secrets node_modules in app directory
 app/secrets/

@@ -1,0 +1,22 @@
+aws_region = "us-east-1"
+environment = [
+  { name = "BASE_URL", value = "placeholder" },
+]
+domain_name           = "example.com"
+base_url              = "https://example.com"
+vpc_cidr              = "10.20.0.0/16"
+primary_subnet_cidr   = "10.20.1.0/24"
+secondary_subnet_cidr = "10.20.2.0/24"
+private_subnet_1_cidr = "10.20.3.0/24"
+private_subnet_2_cidr = "10.20.4.0/24"
+container_port        = 3000
+github_repo           = "your-username/your-repo"
+
+# Sensitive values - set these in GitHub Secrets
+db_username         = "your-db-username"
+db_password         = "your-db-password"
+db_name             = "your-db-name"
+db_identifier       = "your-db-identifier"
+jwt_secret          = "your-jwt-secret"
+identifier_username = "your-identifier-username"
+identifier_password = "your-identifier-password"
