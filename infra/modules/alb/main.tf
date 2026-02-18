@@ -10,7 +10,6 @@ resource "aws_lb" "coderco_alb" {
 
 
 
-  # Tags are applied via provider default_tags.
 }
 
 #target group for load load_balancer
