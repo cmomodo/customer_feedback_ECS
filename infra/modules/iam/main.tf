@@ -1,8 +1,20 @@
+# Import existing OIDC provider
+import {
+  to = aws_iam_openid_connect_provider.github
+  id = "arn:aws:iam::449095351082:oidc-provider/token.actions.githubusercontent.com"
+}
+
 # GitHub OIDC Provider
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+# Import existing IAM role
+import {
+  to = aws_iam_role.github_oidc
+  id = "github_oidc_portfolio"
 }
 
 # GitHub OIDC Role for CI/CD
@@ -26,55 +38,6 @@ resource "aws_iam_role" "github_oidc" {
         }
       }
     }]
-  })
-}
-
-# Attach policies for ECR, ECS, and Terraform operations
-resource "aws_iam_role_policy" "github_oidc_policy" {
-  name = "github-oidc-policy"
-  role = aws_iam_role.github_oidc.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:*",
-          "ecs:*",
-          "ec2:*",
-          "elasticloadbalancing:*",
-          "rds:*",
-          "secretsmanager:*",
-          "logs:*",
-          "iam:*",
-          "acm:*",
-          "route53:*",
-          "s3:*",
-          "dynamodb:*"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-# Route 53 specific permissions for GitHub Actions
-resource "aws_iam_role_policy" "github_oidc_route53_tags_policy" {
-  name = "github-oidc-route53-tags-policy"
-  role = aws_iam_role.github_oidc.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "route53:ListTagsForResource"
-        ]
-        Resource = "arn:aws:route53:::hostedzone/*"
-      }
-    ]
   })
 }
 
