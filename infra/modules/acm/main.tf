@@ -1,6 +1,8 @@
 # Route 53 Zone
 data "aws_route53_zone" "primary" {
   name = var.domain_name
+  
+  skip_requesting_tags = true
 }
 
 # SSL Certificate for HTTPS
