@@ -10,31 +10,37 @@ variable "db_password" {
   sensitive = true
 }
 
+#database name
 variable "db_name" {
   type      = string
   sensitive = true
 }
 
+#database identifer
 variable "db_identifier" {
   type      = string
   sensitive = true
 }
 
+#the jwt secret
 variable "jwt_secret" {
   type      = string
   sensitive = true
 }
 
+#username for identifer
 variable "identifier_username" {
   type      = string
   sensitive = true
 }
 
+#identifier passwowrd
 variable "identifier_password" {
   type      = string
   sensitive = true
 }
 
+#aws region
 variable "aws_region" {
   description = "AWS region"
   type        = string
@@ -75,12 +81,14 @@ variable "private_subnet_2_cidr" {
   type        = string
 }
 
+#the container port that should be used
 variable "container_port" {
   description = "Container port for ECS service and ALB target group"
   type        = number
   default     = 3000
 }
 
+#environment variable
 variable "environment" {
   description = "Extra environment variables for the app"
   type = list(object({
@@ -90,6 +98,7 @@ variable "environment" {
   default = []
 }
 
+#github repo oidc should target
 variable "github_repo" {
   description = "GitHub repository in format 'owner/repo' for OIDC"
   type        = string
