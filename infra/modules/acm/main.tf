@@ -1,10 +1,8 @@
 # Route 53 Zone
 data "aws_route53_zone" "primary" {
   name = var.domain_name
-
-  #want to skip tagging requests
-  skip_requesting_tags = true
 }
+
 
 # SSL Certificate for HTTPS
 resource "aws_acm_certificate" "coderco_cert" {
