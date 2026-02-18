@@ -1,7 +1,7 @@
 #resource creation
 resource "aws_secretsmanager_secret" "db_encrypt" {
   description = "This will encrypt the database password and username"
-  name        = "database-encryption-v3"
+  name        = "database-encryption-v4"
 }
 
 #resource manager rotation
@@ -18,7 +18,7 @@ resource "aws_secretsmanager_secret_version" "db_encrypt" {
 resource "aws_secretsmanager_secret" "task_encrypt" {
   description = "This will be used for the task definition used for the ECS"
 
-  name = "task_encryption-v3"
+  name = "task_encryption-v4"
 }
 
 #resource manager rotation
@@ -35,7 +35,7 @@ resource "aws_secretsmanager_secret_version" "task_encrypt" {
 #resource for identifier encryption
 resource "aws_secretsmanager_secret" "identifier" {
   description = "This will encrypt the identifier"
-  name        = "identifier-encryption-v3"
+  name        = "identifier-encryption-v4"
 }
 
 #resource manager rotation
