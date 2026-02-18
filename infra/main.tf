@@ -78,6 +78,16 @@ module "iam" {
   github_repo = var.github_repo
 }
 
+import {
+  to = module.iam.aws_iam_openid_connect_provider.github
+  id = "arn:aws:iam::449095351082:oidc-provider/token.actions.githubusercontent.com"
+}
+
+import {
+  to = module.iam.aws_iam_role.github_oidc
+  id = "github_oidc_portfolio"
+}
+
 locals {
   database_url = "postgres://${module.secrets.db_username}:${module.secrets.db_password}@${module.rds.rds_endpoint}/${module.rds.db_name}"
 }
