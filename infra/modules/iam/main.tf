@@ -59,6 +59,60 @@ resource "aws_iam_role_policy" "github_oidc_policy" {
   })
 }
 
+# ECR specific permissions for GitHub Actions
+resource "aws_iam_role_policy" "github_oidc_ecr_policy" {
+  name = "github-oidc-ecr-policy"
+  role = aws_iam_role.github_oidc.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:CompleteLayerUpload",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage",
+          "ecr:UploadLayerPart",
+          "ecr:ListTagsForResource",
+          "ecr:DescribeRepositories",
+          "ecr:GetRepositoryPolicy",
+          "ecr:ListImages",
+          "ecr:DescribeImages"
+        ]
+        Resource = "arn:aws:ecr:*:449095351082:repository/*"
+      }
+    ]
+  })
+}
+
+# Route 53 specific permissions for GitHub Actions
+resource "aws_iam_role_policy" "github_oidc_route53_tags_policy" {
+  name = "github-oidc-route53-tags-policy"
+  role = aws_iam_role.github_oidc.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "route53:ListTagsForResource"
+        ]
+        Resource = "arn:aws:route53:::hostedzone/*"
+      }
+    ]
+  })
+}
+
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/my-app"
   retention_in_days = 14
