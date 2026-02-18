@@ -1,3 +1,4 @@
+#certificata arn output
 output "certificate_arn" {
   value = aws_acm_certificate.coderco_cert.arn
 }
