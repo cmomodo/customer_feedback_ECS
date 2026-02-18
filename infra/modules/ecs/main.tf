@@ -1,3 +1,4 @@
+#name of the ecs cluster
 resource "aws_ecs_cluster" "coder_ecs" {
   name = "customer_feedback"
 
@@ -7,13 +8,14 @@ resource "aws_ecs_cluster" "coder_ecs" {
   }
 }
 
-#service
+#name of the service
 resource "aws_ecs_service" "coderco_ecs" {
   name            = "runner_one"
   cluster         = aws_ecs_cluster.coder_ecs.id
   task_definition = aws_ecs_task_definition.task_fider.arn
   desired_count   = 1
 
+  #fargate to run the container
   launch_type = "FARGATE"
   network_configuration {
     security_groups  = [var.ecs_security_group_id]
