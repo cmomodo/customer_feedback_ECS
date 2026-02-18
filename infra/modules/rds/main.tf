@@ -19,7 +19,7 @@ resource "aws_db_instance" "default" {
 
 #subnet group
 resource "aws_db_subnet_group" "default" {
-  name       = "main"
+  name       = "main-v2"
   subnet_ids = var.private_subnet_ids
 
   tags = {
