@@ -1,8 +1,10 @@
+#database username
 variable "db_username" {
   type      = string
   sensitive = true
 }
 
+#databse password
 variable "db_password" {
   type      = string
   sensitive = true
