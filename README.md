@@ -55,3 +55,4 @@ we will add cognito to allow authentication and authorization
 we will be using the count for private subnets since they only used for rds.
 We will be adding SES for emails 
 bootstrap with ecr.
+we have been shipping different versions of secrets because it gets retained for 7 days.

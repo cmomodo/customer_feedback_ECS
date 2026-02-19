@@ -1,10 +1,16 @@
-name: Terraform Destroy workflow
+name: Destroy workflow.
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: "Type yes to allow terraform destroy"
+        required: true
+        default: "no"
 
 jobs:
   destroy:
+    if: ${{ github.event.inputs.confirm_destroy == 'yes' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write

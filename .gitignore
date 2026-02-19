@@ -10,8 +10,7 @@ compose.yml
 #ignore state
 *.tfstate.lock
 
-#ignore state file d
-#state.tf
+
 
 #From the application code
 data/
