@@ -3,6 +3,7 @@ data "aws_iam_role" "github_oidc" {
   name = "github_oidc_portfolio"
 }
 
+#the cloudwatch loggroup
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/my-app"
   retention_in_days = 14
