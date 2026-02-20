@@ -46,5 +46,18 @@ jobs:
         with:
           terraform_version: 1.10.5
 
+      #clean code
       - name: Clean Terraform code
         run: terraform fmt -recursive -check=false
+
+      #run terraform init
+      - name: Terraform Init
+        run: terraform init
+
+      #run terraform plan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      #destroy infrastructure
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -lock-timeout=5m
