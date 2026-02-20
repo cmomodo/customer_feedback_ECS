@@ -1,12 +1,13 @@
 # Route 53 Zone
 data "aws_route53_zone" "primary" {
-  name = "ceedev.co.uk"
+  name = var.domain_name
 }
+
 
 # SSL Certificate for HTTPS
 resource "aws_acm_certificate" "coderco_cert" {
-  domain_name               = "ceedev.co.uk"
-  subject_alternative_names = ["*.ceedev.co.uk"]
+  domain_name               = var.domain_name
+  subject_alternative_names = ["*.${var.domain_name}"]
   validation_method         = "DNS"
 
   tags = {
@@ -43,17 +44,4 @@ resource "aws_acm_certificate_validation" "coderco_cert" {
     create = "5m"
   }
   depends_on = [aws_route53_record.coderco_cert_validation]
-}
-
-# A record pointing domain to ALB
-resource "aws_route53_record" "main" {
-  zone_id = data.aws_route53_zone.primary.zone_id
-  name    = "ceedev.co.uk"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.coderco_alb.dns_name
-    zone_id                = aws_lb.coderco_alb.zone_id
-    evaluate_target_health = true
-  }
 }

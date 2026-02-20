@@ -1,3 +1,4 @@
+#name of the ecs cluster
 resource "aws_ecs_cluster" "coder_ecs" {
   name = "customer_feedback"
 
@@ -7,25 +8,25 @@ resource "aws_ecs_cluster" "coder_ecs" {
   }
 }
 
-#service
+#name of the service
 resource "aws_ecs_service" "coderco_ecs" {
   name            = "runner_one"
   cluster         = aws_ecs_cluster.coder_ecs.id
   task_definition = aws_ecs_task_definition.task_fider.arn
   desired_count   = 1
-  depends_on      = [aws_iam_role_policy.task_exec_logs]
 
+  #fargate to run the container
   launch_type = "FARGATE"
   network_configuration {
-    security_groups  = [aws_security_group.ecs_security_group.id]
-    subnets          = [aws_subnet.primary_subnet.id, aws_subnet.secondary_subnet.id]
+    security_groups  = [var.ecs_security_group_id]
+    subnets          = var.subnet_ids
     assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.coderco_alb.arn
+    target_group_arn = var.target_group_arn
     container_name   = "fider"
-    container_port   = 3000
+    container_port   = var.container_port
   }
 }
 
@@ -36,8 +37,8 @@ resource "aws_ecs_task_definition" "task_fider" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = var.execution_role_arn
+  task_role_arn            = var.task_role_arn
 
   runtime_platform {
     operating_system_family = "LINUX"
@@ -52,17 +53,29 @@ resource "aws_ecs_task_definition" "task_fider" {
       memory       = 512
       essential    = var.container_config.essential
       portMappings = var.container_config.portMappings
-      environment  = var.container_config.environment
+      secrets = concat(var.container_config.secrets, [
+        {
+          name      = var.jwt_secret_name
+          valueFrom = var.task_secret_arn
+        }
+      ])
+      environment = [
+        for env in var.container_config.environment :
+        env.name == "BASE_URL" ? { name = "BASE_URL", value = var.base_url } :
+        env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = var.database_url } : env
+      ]
+
       logConfiguration = {
         logDriver = var.container_config.logConfiguration.logDriver
         options = merge(
           var.container_config.logConfiguration.options,
           {
-            "awslogs-group"  = aws_cloudwatch_log_group.app.name
+            "awslogs-group"  = var.log_group_name
             "awslogs-region" = "us-east-1"
           }
         )
       }
     }
+
   ])
 }

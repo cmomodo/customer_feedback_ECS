@@ -10,8 +10,7 @@ compose.yml
 #ignore state
 *.tfstate.lock
 
-#ignore state file d
-state.tf
+
 
 #From the application code
 data/
@@ -47,14 +46,25 @@ fider.sql
 #ignore
 terraform.tfvars
 
-#ignore variables for now
-variable.tf
-
-#ignore secrets file
-secrets.tf
-
-#ignore
-db-init.tf
 
 #ignore generated diagram
 generated-diagrams
+
+
+
+#ignore secrets node_modules in app directory
+app/secrets/
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+plan.json
+*.pem
+*.key

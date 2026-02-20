@@ -1,7 +1,63 @@
-variable "aws_region" {
-  description = "AWS region"
+variable "image_tag" {
+  description = "Docker image tag for the ECR repository"
   type        = string
-  default     = "us-east-1"
+  default     = "1.0.1"
+}
+
+variable "base_url" {
+  description = "The base URL for the application"
+  type        = string
+}
+
+variable "ecs_security_group_id" {
+  description = "Security group ID for ECS service"
+  type        = string
+}
+
+variable "subnet_ids" {
+  description = "Subnet IDs for ECS service networking"
+  type        = list(string)
+}
+
+variable "target_group_arn" {
+  description = "ALB target group ARN for ECS service"
+  type        = string
+}
+
+variable "execution_role_arn" {
+  description = "IAM role ARN for ECS task execution"
+  type        = string
+}
+
+variable "task_role_arn" {
+  description = "IAM role ARN for ECS task"
+  type        = string
+}
+
+variable "task_secret_arn" {
+  description = "Secrets Manager ARN for task secret"
+  type        = string
+}
+
+variable "log_group_name" {
+  description = "CloudWatch log group name"
+  type        = string
+}
+
+variable "database_url" {
+  description = "Database URL for the app"
+  type        = string
+}
+
+variable "jwt_secret_name" {
+  description = "Secret name for JWT secret env var"
+  type        = string
+}
+
+variable "container_port" {
+  description = "Container port for the ECS service (keep in sync with portMappings)"
+  type        = number
+  default     = 3000
 }
 
 # Container definition variable
@@ -45,7 +101,12 @@ variable "container_config" {
     logConfiguration = object({
       logDriver = string
       options   = map(string)
-    })
+    }),
+    #environment secrets
+    secrets = optional(list(object({
+      name  = string
+      value = string
+    })), [])
   })
   default = {
     name      = "fider"
@@ -61,12 +122,12 @@ variable "container_config" {
     ]
     environment = [
       {
-        name  = "JWT_SECRET"
-        value = "hsjl]W;&ZcHxT&FK;s%bgIQF:#ch=~#Al4:5]N;7V<qPZ3e9lT4'%;go;LIkc%k"
+        name  = "BASE_URL"
+        value = "placeholder"
       },
       {
         name  = "DATABASE_URL"
-        value = "postgres://fider:Test1234!@fider-db.cjqxkyjn8ujy.us-east-1.rds.amazonaws.com:5432/fider"
+        value = "postgres://user:password@host:5432/dbname"
       },
       {
         name  = "EMAIL_NOREPLY"
@@ -87,10 +148,6 @@ variable "container_config" {
       {
         name  = "EMAIL_SMTP_PASSWORD"
         value = "testpass"
-      },
-      {
-        name  = "BASE_URL"
-        value = "https://ceedev.co.uk"
       },
       {
         name  = "GO_ENV"
@@ -124,17 +181,8 @@ variable "container_config" {
         "awslogs-stream-prefix" = "coder_ecs"
       }
     }
-  }
-}
 
-variable "aws_db_instance" {
-  description = "AWS RDS database instance credentials"
-  type = object({
-    username = string
-    password = string
-  })
-  default = {
-    username = "fider"
-    password = "Test1234!"
+    #secret
+    secrets = []
   }
 }
