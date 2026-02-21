@@ -55,8 +55,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      #destroy infrastructure
+      #destroy infrastructure (exclude IAM module to preserve GitHub OIDC role)
       - name: Terraform Destroy
         run: |
           aws sts get-caller-identity
-          terraform destroy -auto-approve -lock-timeout=5m
+          terraform destroy -auto-approve -lock-timeout=5m \
+            -target=module.ecs \
+            -target=module.alb \
+            -target=module.rds \
+            -target=module.secrets \
+            -target=module.vpc \

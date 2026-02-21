@@ -78,15 +78,6 @@ module "iam" {
   github_repo = var.github_repo
 }
 
-import {
-  to = module.iam.aws_iam_openid_connect_provider.github
-  id = "arn:aws:iam::449095351082:oidc-provider/token.actions.githubusercontent.com"
-}
-
-import {
-  to = module.iam.aws_iam_role.github_oidc
-  id = "github_oidc_portfolio"
-}
 
 import {
   to = module.iam.aws_cloudwatch_log_group.app
