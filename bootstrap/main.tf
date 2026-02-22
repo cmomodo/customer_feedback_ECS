@@ -4,6 +4,14 @@ import {
   id = var.state_bucket_name
 }
 
+resource "aws_s3_bucket" "tf_state" {
+  bucket = var.state_bucket_name
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 
 
 #create terraform ecr
