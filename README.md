@@ -54,6 +54,8 @@ terraform apply
 
 when using secrets using a different version number. even after deployment theres a delay of 7 days before its gone thats why we now set it to zero.
 
+my computer is a mac which uses amd64 but github actions uses x86_64. so i normally have to switch between them.
+
 ## Feature improvements
 we will add cognito to allow authentication and authorization
 we will be using the count for private subnets since they only used for rds.
