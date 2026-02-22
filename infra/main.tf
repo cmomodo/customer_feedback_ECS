@@ -79,16 +79,6 @@ module "iam" {
 }
 
 
-import {
-  to = module.iam.aws_cloudwatch_log_group.app
-  id = "/ecs/my-app"
-}
-
-import {
-  to = module.iam.aws_iam_role.ecs_task_execution_role
-  id = "ecs_task_execution_role"
-}
-
 locals {
   database_url = "postgres://${module.secrets.db_username}:${module.secrets.db_password}@${module.rds.rds_endpoint}/${module.rds.db_name}"
 }
