@@ -94,8 +94,10 @@ locals {
 }
 
 module "ecs" {
-  source   = "./modules/ecs"
-  base_url = var.base_url
+  source             = "./modules/ecs"
+  base_url           = var.base_url
+  image_tag          = var.image_tag
+  ecr_repository_url = data.aws_ecr_repository.app.repository_url
 
   ecs_security_group_id = module.vpc.ecs_security_group
   container_port        = var.container_port
@@ -122,6 +124,6 @@ module "ecs" {
 }
 
 #imported ecr repo
-data "aws_ecr_repository" "fider" {
-  name = "fider"
+data "aws_ecr_repository" "app" {
+  name = var.ecr_repository_name
 }

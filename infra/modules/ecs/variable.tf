@@ -1,7 +1,12 @@
 variable "image_tag" {
   description = "Docker image tag for the ECR repository"
   type        = string
-  default     = "1.0.1"
+  default     = "latest"
+}
+
+variable "ecr_repository_url" {
+  description = "ECR repository URL for the application image"
+  type        = string
 }
 
 variable "base_url" {

@@ -50,6 +50,8 @@ terraform.tfvars
 #ignore generated diagram
 generated-diagrams
 
+#ignore
+gh_setup.sh
 
 
 #ignore secrets node_modules in app directory

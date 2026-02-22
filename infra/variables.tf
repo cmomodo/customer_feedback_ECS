@@ -103,3 +103,14 @@ variable "github_repo" {
   description = "GitHub repository in format 'owner/repo' for OIDC"
   type        = string
 }
+
+variable "image_tag" {
+  description = "Docker image tag to deploy from ECR (CI uses commit SHA; infra-only runs may use latest)"
+  type        = string
+  default     = "latest"
+}
+
+variable "ecr_repository_name" {
+  description = "ECR repository name created by the bootstrap stack"
+  type        = string
+}

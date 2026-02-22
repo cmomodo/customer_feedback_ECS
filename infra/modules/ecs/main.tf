@@ -48,7 +48,7 @@ resource "aws_ecs_task_definition" "task_fider" {
   container_definitions = jsonencode([
     {
       name         = var.container_config.name
-      image        = var.container_config.image
+      image        = "${var.ecr_repository_url}:${var.image_tag}"
       cpu          = 256
       memory       = 512
       essential    = var.container_config.essential
