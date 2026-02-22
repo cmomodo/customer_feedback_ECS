@@ -1,6 +1,6 @@
 # CoderCo Assignment 1 - Open Source App Hosted on ECS with Terraform
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up.
+This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up. we are currently working on adding authentication and authorization features using Cognito. we will also be adding SES for email notifications.
 
 ### Task/Assignment
 
@@ -9,6 +9,8 @@ We were assigned to deploy an open source app using Terraform. The app chosen wa
 We use a container image for the app, push it to ECR (recommended) or DockerHub, and use a CI/CD pipeline to build, test, and push the container image.
 
 Deploy the app on ECS using Terraform. All the resources should be provisioned using Terraform. Use TF modules.
+
+we will be using the CI/CD pipelines for easy deployment and automation.we have 4 different pipelines.
 
 The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
 
