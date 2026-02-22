@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows:
       - "Docker build and push"
-      - "Terraform Bootstrap workflow"
     types:
       - completed
   push:
@@ -16,7 +15,7 @@ on:
 
 jobs:
   terraform:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && !(github.event.workflow_run.name == 'Docker build and push' && github.event.workflow_run.event == 'workflow_run')) }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     concurrency:
       group: terraform-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       cancel-in-progress: true
@@ -100,7 +99,7 @@ jobs:
         working-directory: .
 
       - name: Download build metadata artifact
-        if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Docker build and push' }}
+        if: ${{ github.event_name == 'workflow_run' }}
         id: download-build-meta
         uses: actions/download-artifact@v4
         with:
@@ -113,7 +112,7 @@ jobs:
       - name: Resolve image tag
         id: image-tag
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ] && [ "${{ github.event.workflow_run.name }}" = "Docker build and push" ] && [ -f .artifacts/build/image_tag.txt ]; then
+          if [ "${{ github.event_name }}" = "workflow_run" ] && [ -f .artifacts/build/image_tag.txt ]; then
             IMAGE_TAG="$(cat .artifacts/build/image_tag.txt)"
           else
             IMAGE_TAG="latest"
@@ -133,18 +132,3 @@ jobs:
 
       - name: Apply Terraform
         run: terraform apply -auto-approve -lock-timeout=5m tfplan
-
-      - name: Mark bootstrap-triggered terraform run
-        if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Terraform Bootstrap workflow' }}
-        run: |
-          mkdir -p .artifacts/terra
-          echo "bootstrap" > .artifacts/terra/source.txt
-        working-directory: .
-
-      - name: Upload terraform trigger metadata
-        if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Terraform Bootstrap workflow' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: terra-trigger-metadata
-          path: .artifacts/terra/source.txt
-          if-no-files-found: error

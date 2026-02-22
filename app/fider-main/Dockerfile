@@ -15,6 +15,7 @@ RUN mkdir /server
 WORKDIR /server
 
 COPY go.mod go.sum ./
+RUN go get github.com/golang-jwt/jwt/v4@v4.5.2 && go mod tidy
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod download
 

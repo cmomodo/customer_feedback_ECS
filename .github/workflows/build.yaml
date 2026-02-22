@@ -34,27 +34,23 @@ jobs:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Configure AWS credentials
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Set up Terraform (read bootstrap outputs)
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.10.5
 
       - name: Validate bootstrap backend config inputs
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         run: |
           test -n "$BOOTSTRAP_TF_STATE_BUCKET"
           test -n "$BOOTSTRAP_TF_STATE_KEY"
           test -n "$BOOTSTRAP_TF_STATE_REGION"
 
       - name: Initialize Bootstrap Terraform (read outputs)
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         run: |
           terraform -chdir=bootstrap init -reconfigure \
             -backend-config="bucket=${BOOTSTRAP_TF_STATE_BUCKET}" \
@@ -64,24 +60,20 @@ jobs:
             -backend-config="use_lockfile=true"
 
       - name: Read bootstrap ECR outputs
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         id: bootstrap
         run: |
           echo "ecr_repository_name=$(terraform -chdir=bootstrap output -raw ecr_repository_name)" >> "$GITHUB_OUTPUT"
           echo "ecr_repository_url=$(terraform -chdir=bootstrap output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
 
       - name: Login to Amazon ECR
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set image tag
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         id: tag
         run: echo "image_tag=${{ github.run_number }}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       - name: Build docker image
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ steps.bootstrap.outputs.ecr_repository_name }}
@@ -91,7 +83,6 @@ jobs:
           docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
 
       - name: Trivy scan image
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:${{ steps.tag.outputs.image_tag }}
@@ -102,7 +93,6 @@ jobs:
           severity: "HIGH,CRITICAL"
 
       - name: Push docker image to Amazon ECR
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ steps.bootstrap.outputs.ecr_repository_name }}
@@ -112,19 +102,13 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:latest
 
       - name: Persist build metadata for terraform deploy
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         run: |
           mkdir -p .artifacts/build
           echo "${{ steps.tag.outputs.image_tag }}" > .artifacts/build/image_tag.txt
 
       - name: Upload build metadata
-        if: ${{ github.event_name != 'workflow_run' || steps.gate-workflow-run.outputs.should_build == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: build-metadata
           path: .artifacts/build/image_tag.txt
           if-no-files-found: error
-
-      - name: Skip non-bootstrap terraform-triggered run
-        if: ${{ github.event_name == 'workflow_run' && steps.gate-workflow-run.outputs.should_build != 'true' }}
-        run: echo "Skipping build because terraform run was not bootstrap-triggered."
