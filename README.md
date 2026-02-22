@@ -52,6 +52,8 @@ terraform apply
 ## Health Check Confirmation
 ![Health Check Confirmation](./Images/health_check.png)
 
+when using secrets using a different version number. even after deployment theres a delay of 7 days before its gone thats why we now set it to zero.
+
 ## Feature improvements
 we will add cognito to allow authentication and authorization
 we will be using the count for private subnets since they only used for rds.
