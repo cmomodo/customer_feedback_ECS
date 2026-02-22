@@ -1,64 +1,121 @@
-# CoderCo Assignment 1 - Open Source App Hosted on ECS with Terraform
+# Customer Feedback App
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up. we are currently working on adding authentication and authorization features using Cognito. we will also be adding SES for email notifications.
+This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up. We are currently working on adding authentication and authorization features using Cognito. We will also be adding SES for email notifications.
 
-### Task/Assignment
+### Task
 
 We were assigned to deploy an open source app using Terraform. The app chosen was the Customer Feedback App.
-
 We use a container image for the app, push it to ECR (recommended) or DockerHub, and use a CI/CD pipeline to build, test, and push the container image.
-
 Deploy the app on ECS using Terraform. All the resources should be provisioned using Terraform. Use TF modules.
-
-we will be using the CI/CD pipelines for easy deployment and automation.we have 4 different pipelines.
-
+We will be using the CI/CD pipelines for easy deployment and automation. We have 4 different pipelines.
 The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
 
 ## System Design
-![System Design Diagram](./Images/ecs_p1.png)
+![System Design Diagram](./Images/system_design.png)
 
+## Project Structure
 
-
-## Structure 
 ```
 .
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── terraform.tfvars
-├── modules/
-│   ├── ecr/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   ├── ecs/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   └── vpc/
-│       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
+├── .github/
+│   └── workflows/
+│       ├── bootstrap.yaml
+│       ├── build.yaml
+│       ├── clean.yaml
+│       └── terra.yaml
+├── Images/
+│   ├── ecs_p1.png
+│   ├── health_check.png
+│   ├── https.png
+│   ├── system_design.png
+│   └── trivy_scan.png
+├── app/
+│   └── fider-main/
+│       ├── .github/
+│       ├── app/
+│       ├── e2e/
+│       ├── etc/
+│       ├── locale/
+│       ├── migrations/
+│       ├── public/
+│       ├── scripts/
+│       ├── views/
+│       └── ...
+├── bootstrap/
+│   ├── gh_example.sh
+│   ├── gh_setup.sh
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── providers.tf
+│   ├── README.md
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── infra/
+│   ├── generated-diagrams/
+│   ├── modules/
+│   │   ├── acm/
+│   │   ├── alb/
+│   │   ├── ecs/
+│   │   ├── iam/
+│   │   ├── rds/
+│   │   ├── secrets/
+│   │   └── vpc/
+│   ├── polices/
+│   ├── .terraform.lock.hcl
+│   ├── aws.tf
+│   ├── main.tf
+│   ├── state.tf
+│   ├── terraform.tfvars
+│   ├── terraform.tfvars.example
+│   └── variables.tf
+├── .gitignore
+├── .pre-commit-config.yaml
+├── local_run.py
+└── README.md
 ```
 
 ## Build App
 
 ```bash
+#1ST bootstrap 
 terraform init
 terraform plan
 terraform apply
+
+#2ND bootstrap 
+terraform init
+terraform plan
+terraform apply
+
 ```
 
 ## Health Check Confirmation
 ![Health Check Confirmation](./Images/health_check.png)
 
-when using secrets using a different version number. even after deployment theres a delay of 7 days before its gone thats why we now set it to zero.
+## HTTPs Confirmation
+![HTTPs Confirmation](./Images/https.png)
 
-my computer is a mac which uses amd64 but github actions uses x86_64. so i normally have to switch between them.
+## Docker
+![Docker Confirmation](./Images/trivy_scan.png)
 
-## Feature improvements
-we will add cognito to allow authentication and authorization
-we will be using the count for private subnets since they only used for rds.
-We will be adding SES for emails 
-bootstrap with ecr.
-we have been shipping different versions of secrets because it gets retained for 7 days.
+- Created a non-root user.
+- Used the COPY commands in one line.
+- Managed to fix the run time from 30 minutes to 2 minutes.
+- Trivy scan added to CI/CD pipeline.
+
+## Certificate
+For the HTTPS certificate, it's easier to use the CLI. This was suggested by Amazon Q.
+
+```bash
+aws acm request-certificate --domain-name ceedev.co.uk --validation-method DNS
+```
+
+## Feature Improvements
+
+- We will add Cognito to allow authentication and authorization.
+- We will be adding SES for emails.
+- We have been shipping different versions of secrets because it gets retained for 7 days
+- When using secrets with a different version number, even after deployment there's a delay of 7 days before it's gone, that's why we now set it to zero
+- My computer is a Mac which uses amd64 but GitHub Actions uses x86_64, so I normally have to switch between them
+- Create a script for local execution
+- Implement checkov into the CI/CD pipeline.

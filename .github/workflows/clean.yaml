@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm_destroy:
-        description: "Type DESTROY to confirm full cleanup"
+        description: "Type DESTROY to confirm cleanup (infra + bootstrap ECR, keeps state bucket)"
         required: true
         type: string
 
@@ -39,10 +39,13 @@ jobs:
       BOOTSTRAP_TF_STATE_BUCKET: ${{ secrets.BOOTSTRAP_TF_STATE_BUCKET != '' && secrets.BOOTSTRAP_TF_STATE_BUCKET || vars.BOOTSTRAP_TF_STATE_BUCKET }}
       BOOTSTRAP_TF_STATE_KEY: ${{ secrets.BOOTSTRAP_TF_STATE_KEY != '' && secrets.BOOTSTRAP_TF_STATE_KEY || vars.BOOTSTRAP_TF_STATE_KEY }}
       BOOTSTRAP_TF_STATE_REGION: ${{ secrets.BOOTSTRAP_TF_STATE_REGION != '' && secrets.BOOTSTRAP_TF_STATE_REGION || vars.BOOTSTRAP_TF_STATE_REGION }}
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "0"
 
     steps:
       - name: Validate confirmation input
         run: |
+          set -euo pipefail
           if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
             echo "Invalid confirmation. Type DESTROY to run cleanup."
             exit 1
@@ -66,6 +69,7 @@ jobs:
 
       - name: Validate bootstrap backend config inputs
         run: |
+          set -euo pipefail
           test -n "$BOOTSTRAP_TF_STATE_BUCKET"
           test -n "$BOOTSTRAP_TF_STATE_KEY"
           test -n "$BOOTSTRAP_TF_STATE_REGION"
@@ -73,7 +77,9 @@ jobs:
 
       - name: Init bootstrap terraform
         run: |
+          set -euo pipefail
           terraform -chdir=bootstrap init -reconfigure \
+            -input=false \
             -backend-config="bucket=${BOOTSTRAP_TF_STATE_BUCKET}" \
             -backend-config="key=${BOOTSTRAP_TF_STATE_KEY}" \
             -backend-config="region=${BOOTSTRAP_TF_STATE_REGION}" \
@@ -84,6 +90,7 @@ jobs:
       - name: Read bootstrap outputs
         id: bootstrap
         run: |
+          set -euo pipefail
           echo "ecr_repository_name=$(terraform -chdir=bootstrap output -raw ecr_repository_name)" >> "$GITHUB_OUTPUT"
           echo "state_bucket_name=$(terraform -chdir=bootstrap output -raw state_bucket_name)" >> "$GITHUB_OUTPUT"
         working-directory: .
@@ -93,21 +100,27 @@ jobs:
         working-directory: .
 
       - name: Terraform init (infra)
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform destroy (infra)
         run: |
+          set -euo pipefail
           aws sts get-caller-identity
-          terraform destroy -auto-approve -lock-timeout=5m
+          terraform destroy -input=false -auto-approve -lock-timeout=5m
 
-      - name: Terraform destroy (bootstrap)
+      - name: Terraform destroy (bootstrap ECR only)
         run: |
-          terraform -chdir=bootstrap destroy -auto-approve -lock-timeout=5m
+          set -euo pipefail
+          terraform -chdir=bootstrap destroy \
+            -target=aws_ecr_repository.customer_feedback \
+            -input=false \
+            -auto-approve \
+            -lock-timeout=5m
         working-directory: .
 
       - name: Cleanup summary
         run: |
-          echo "Destroyed infra stack and bootstrap resources (ECR + infra state bucket)."
-          echo "Bootstrap ECR repo was: ${{ steps.bootstrap.outputs.ecr_repository_name }}"
-          echo "Infra state bucket was: ${{ steps.bootstrap.outputs.state_bucket_name }}"
+          echo "Destroyed infra stack and bootstrap ECR repository."
+          echo "Preserved Terraform state bucket: ${{ steps.bootstrap.outputs.state_bucket_name }}"
+          echo "Destroyed bootstrap ECR repo: ${{ steps.bootstrap.outputs.ecr_repository_name }}"
         working-directory: .

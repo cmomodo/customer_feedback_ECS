@@ -1,3 +1,4 @@
+#fmt enforcer.
 repos:
   - repo: local
     hooks:
