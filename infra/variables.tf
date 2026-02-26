@@ -111,6 +111,12 @@ variable "image_tag" {
 }
 
 variable "ecr_repository_name" {
-  description = "ECR repository name created by the bootstrap stack"
+  description = "ECR repository name to create (or read if bootstrap is used)"
   type        = string
+}
+
+variable "create_ecr_repository" {
+  description = "Create the ECR repository in the infra stack instead of reading it from bootstrap"
+  type        = bool
+  default     = true
 }

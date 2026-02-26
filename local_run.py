@@ -21,6 +21,7 @@ import sys
 BOOTSTRAP_STATE_BUCKET = os.environ.get("BOOTSTRAP_TF_STATE_BUCKET", "my-27-state-bucket")
 BOOTSTRAP_STATE_KEY    = os.environ.get("BOOTSTRAP_TF_STATE_KEY",    "bootstrap/terraform.tfstate")
 AWS_REGION             = os.environ.get("AWS_REGION", "us-east-1")
+BOOTSTRAP_VARS_FILE    = os.environ.get("BOOTSTRAP_VARS_FILE", "boot.tfvars")
 
 BOOTSTRAP_DIR = "bootstrap"
 INFRA_DIR     = "infra"
@@ -84,8 +85,24 @@ def step_bootstrap():
     print("\n=== Bootstrap: creating S3 state bucket + ECR repo ===")
     bootstrap_init()
     run(["terraform", "validate"], cwd=BOOTSTRAP_DIR)
-    run(["terraform", "plan", "-lock-timeout=5m", "-out=tfplan"], cwd=BOOTSTRAP_DIR)
-    run(["terraform", "apply", "-auto-approve", "-lock-timeout=5m", "tfplan"], cwd=BOOTSTRAP_DIR)
+    run(
+        [
+            "terraform", "plan",
+            "-var-file", BOOTSTRAP_VARS_FILE,
+            "-lock-timeout=5m",
+            "-out=tfplan",
+        ],
+        cwd=BOOTSTRAP_DIR,
+    )
+    run(
+        [
+            "terraform", "apply",
+            "-auto-approve",
+            "-lock-timeout=5m",
+            "tfplan",
+        ],
+        cwd=BOOTSTRAP_DIR,
+    )
     print("\nBootstrap outputs:")
     run(["terraform", "output", "ecr_repository_name"], cwd=BOOTSTRAP_DIR)
     run(["terraform", "output", "state_bucket_name"],   cwd=BOOTSTRAP_DIR)
@@ -116,9 +133,6 @@ def step_build(image_tag: str = "local"):
     token = run_capture([
         "aws", "ecr", "get-login-password", "--region", AWS_REGION
     ])
-    run(["docker", "login", "--username", "AWS", "--password-stdin", registry],
-        env={"DOCKER_LOGIN_PASSWORD": token})
-    # pipe login password manually
     login = subprocess.run(
         ["docker", "login", "--username", "AWS", "--password-stdin", registry],
         input=token, text=True, capture_output=True

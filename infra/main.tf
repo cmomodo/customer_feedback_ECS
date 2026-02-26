@@ -80,14 +80,15 @@ module "iam" {
 
 
 locals {
-  database_url = "postgres://${module.secrets.db_username}:${module.secrets.db_password}@${module.rds.rds_endpoint}/${module.rds.db_name}"
+  database_url       = "postgres://${module.secrets.db_username}:${module.secrets.db_password}@${module.rds.rds_endpoint}/${module.rds.db_name}"
+  ecr_repository_url = var.create_ecr_repository ? aws_ecr_repository.app[0].repository_url : data.aws_ecr_repository.app[0].repository_url
 }
 
 module "ecs" {
   source             = "./modules/ecs"
   base_url           = var.base_url
   image_tag          = var.image_tag
-  ecr_repository_url = data.aws_ecr_repository.app.repository_url
+  ecr_repository_url = local.ecr_repository_url
 
   ecs_security_group_id = module.vpc.ecs_security_group
   container_port        = var.container_port
@@ -113,7 +114,21 @@ module "ecs" {
   ]
 }
 
+# Create ECR repo in infra when bootstrap stack is not used.
+resource "aws_ecr_repository" "app" {
+  count = var.create_ecr_repository ? 1 : 0
+
+  name                 = var.ecr_repository_name
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
 #imported ecr repo
 data "aws_ecr_repository" "app" {
-  name = var.ecr_repository_name
+  count = var.create_ecr_repository ? 0 : 1
+  name  = var.ecr_repository_name
 }

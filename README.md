@@ -77,15 +77,12 @@ The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
 ## Build App
 
 ```bash
-#1ST bootstrap 
-terraform init
-terraform plan
-terraform apply
+terraform -chdir=bootstrap init -reconfigure \
+  -backend-config='bucket=my-27-state-bucket' \
+  -backend-config='region=us-east-1'
 
-#2ND bootstrap 
-terraform init
-terraform plan
-terraform apply
+terraform -chdir=bootstrap plan -var-file=boot.tfvars
+terraform -chdir=bootstrap apply -var-file=boot.tfvars
 
 ```
 
@@ -102,6 +99,19 @@ terraform apply
 - Used the COPY commands in one line.
 - Managed to fix the run time from 30 minutes to 2 minutes.
 - Trivy scan added to CI/CD pipeline.
+
+## Pipelines
+Bootstrap workflow: create the ecr repository
+![Docker Confirmation](./Images/bootsrap.png)
+
+Docker workflow: build and push the docker image
+![Docker Confirmation](./Images/docker_deploy.png)
+
+Infrastructure workflow: deploy the application
+![Docker Confirmation](./Images/terraform_deploy.png)
+
+Clean up workflow: delete Everything
+![Docker Confirmation](./Images/cleanup.png)
 
 ## Certificate
 For the HTTPS certificate, it's easier to use the CLI. This was suggested by Amazon Q.

@@ -1,2 +1,3 @@
 aws_region        = "us-east-1"
 state_bucket_name = "my-27-state-bucket"
+AWS_ROLE_ARN = arn:aws:iam::449095351082:role/github_oidc_portfolio

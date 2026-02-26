@@ -7,6 +7,8 @@ import {
 resource "aws_s3_bucket" "tf_state" {
   bucket = var.state_bucket_name
 
+
+
   lifecycle {
     prevent_destroy = true
   }
@@ -17,7 +19,7 @@ resource "aws_s3_bucket" "tf_state" {
 #create terraform ecr
 resource "aws_ecr_repository" "customer_feedback" {
   name                 = "customer-feedback"
-  image_tag_mutability = "MUTABLE"
+  image_tag_mutability = "IMMUTABLE"
   force_delete         = true
 
   image_scanning_configuration {

@@ -53,6 +53,12 @@ generated-diagrams
 #ignore
 gh_setup.sh
 
+#ignore
+tfplan.binary
+
+#ignore boot.tfvars
+boot.tfvars
+
 
 #ignore secrets node_modules in app directory
 app/secrets/
