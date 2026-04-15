@@ -120,3 +120,16 @@ variable "create_ecr_repository" {
   type        = bool
   default     = true
 }
+
+variable "skip_final_snapshot" {
+  description = "Whether to skip the final RDS snapshot on destroy"
+  type        = bool
+  default     = true
+}
+
+variable "final_snapshot_identifier" {
+  description = "Optional override for the final RDS snapshot identifier when skip_final_snapshot is false"
+  type        = string
+  default     = null
+  nullable    = true
+}

@@ -12,6 +12,7 @@ private_subnet_2_cidr = "10.20.4.0/24"
 container_port        = 3000
 github_repo           = "your-username/your-repo"
 image_tag             = "latest" # CI/CD overrides this with the built commit SHA
+skip_final_snapshot   = true
 
 # Sensitive values - set these in GitHub Secrets
 db_username         = "your-db-username"

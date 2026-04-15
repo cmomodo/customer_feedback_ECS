@@ -15,6 +15,7 @@ resource "aws_ecs_service" "coderco_ecs" {
   task_definition = aws_ecs_task_definition.task_fider.arn
   desired_count   = 1
 
+
   #fargate to run the container
   launch_type = "FARGATE"
   network_configuration {
@@ -40,6 +41,8 @@ resource "aws_ecs_task_definition" "task_fider" {
   execution_role_arn       = var.execution_role_arn
   task_role_arn            = var.task_role_arn
 
+
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
@@ -47,12 +50,13 @@ resource "aws_ecs_task_definition" "task_fider" {
 
   container_definitions = jsonencode([
     {
-      name         = var.container_config.name
-      image        = "${var.ecr_repository_url}:${var.image_tag}"
-      cpu          = 256
-      memory       = 512
-      essential    = var.container_config.essential
-      portMappings = var.container_config.portMappings
+      name                   = var.container_config.name
+      image                  = "${var.ecr_repository_url}:${var.image_tag}"
+      cpu                    = 256
+      memory                 = 512
+      essential              = var.container_config.essential
+      readonlyRootFilesystem = try(var.container_config.readonlyRootFilesystem, false)
+      portMappings           = var.container_config.portMappings
       secrets = concat(var.container_config.secrets, [
         {
           name      = var.jwt_secret_name

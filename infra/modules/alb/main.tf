@@ -1,10 +1,11 @@
 #the load balancer
 resource "aws_lb" "coderco_alb" {
-  name               = "coderco-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [var.security_group_id]
-  subnets            = var.subnet_ids
+  name                       = "coderco-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  drop_invalid_header_fields = true
+  security_groups            = [var.security_group_id]
+  subnets                    = var.subnet_ids
 
   enable_deletion_protection = false
 

@@ -57,3 +57,16 @@ variable "instance_class" {
   type        = string
   default     = "db.t3.micro"
 }
+
+variable "skip_final_snapshot" {
+  description = "Whether to skip the final snapshot when destroying the RDS instance"
+  type        = bool
+  default     = true
+}
+
+variable "final_snapshot_identifier" {
+  description = "Optional final snapshot identifier override used when skip_final_snapshot is false"
+  type        = string
+  default     = null
+  nullable    = true
+}

@@ -107,6 +107,7 @@ variable "container_config" {
       logDriver = string
       options   = map(string)
     }),
+    readonlyRootFilesystem = optional(bool)
     #environment secrets
     secrets = optional(list(object({
       name  = string
@@ -114,11 +115,12 @@ variable "container_config" {
     })), [])
   })
   default = {
-    name      = "fider"
-    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
-    cpu       = 256
-    memory    = 512
-    essential = true
+    name                   = "fider"
+    image                  = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
+    cpu                    = 256
+    memory                 = 512
+    essential              = true
+    readonlyRootFilesystem = false
     portMappings = [
       {
         containerPort = 3000

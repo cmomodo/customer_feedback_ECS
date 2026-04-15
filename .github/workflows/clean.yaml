@@ -39,6 +39,7 @@ jobs:
       BOOTSTRAP_TF_STATE_BUCKET: ${{ secrets.BOOTSTRAP_TF_STATE_BUCKET != '' && secrets.BOOTSTRAP_TF_STATE_BUCKET || vars.BOOTSTRAP_TF_STATE_BUCKET }}
       BOOTSTRAP_TF_STATE_KEY: ${{ secrets.BOOTSTRAP_TF_STATE_KEY != '' && secrets.BOOTSTRAP_TF_STATE_KEY || vars.BOOTSTRAP_TF_STATE_KEY }}
       BOOTSTRAP_TF_STATE_REGION: ${{ secrets.BOOTSTRAP_TF_STATE_REGION != '' && secrets.BOOTSTRAP_TF_STATE_REGION || vars.BOOTSTRAP_TF_STATE_REGION }}
+      RDS_SNAPSHOT_IDENTIFIER: fider-db-snapshot
       TF_IN_AUTOMATION: "true"
       TF_INPUT: "0"
 
@@ -107,6 +108,22 @@ jobs:
           set -euo pipefail
           aws sts get-caller-identity
           terraform destroy -input=false -auto-approve -lock-timeout=5m
+
+      - name: Delete RDS snapshot if present
+        run: |
+          set -euo pipefail
+          SNAPSHOT_ID="${RDS_SNAPSHOT_IDENTIFIER}"
+          if aws rds describe-db-snapshots --db-snapshot-identifier "$SNAPSHOT_ID" >/dev/null 2>&1; then
+            STATUS="$(aws rds describe-db-snapshots --db-snapshot-identifier "$SNAPSHOT_ID" --query 'DBSnapshots[0].Status' --output text)"
+            if [ "$STATUS" = "creating" ]; then
+              aws rds wait db-snapshot-completed --db-snapshot-identifier "$SNAPSHOT_ID"
+            fi
+            aws rds delete-db-snapshot --db-snapshot-identifier "$SNAPSHOT_ID"
+            aws rds wait db-snapshot-deleted --db-snapshot-identifier "$SNAPSHOT_ID"
+            echo "Deleted snapshot: $SNAPSHOT_ID"
+          else
+            echo "Snapshot not found (nothing to delete): $SNAPSHOT_ID"
+          fi
 
       - name: Terraform destroy (bootstrap ECR only)
         run: |

@@ -50,6 +50,8 @@ module "rds" {
   db_name                     = module.secrets.db_name
   db_identifier               = module.secrets.db_identifier
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
+  skip_final_snapshot         = var.skip_final_snapshot
+  final_snapshot_identifier   = var.final_snapshot_identifier
 
   depends_on = [
     module.vpc
