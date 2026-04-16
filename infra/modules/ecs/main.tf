@@ -36,24 +36,24 @@ resource "aws_ecs_task_definition" "task_fider" {
   family                   = "service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = var.cpu
+  memory                   = var.memory
   execution_role_arn       = var.execution_role_arn
   task_role_arn            = var.task_role_arn
 
 
 
   runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "X86_64"
+    operating_system_family = var.operating_system_family
+    cpu_architecture        = var.cpu_architecture
   }
 
   container_definitions = jsonencode([
     {
       name                   = var.container_config.name
       image                  = "${var.ecr_repository_url}:${var.image_tag}"
-      cpu                    = 256
-      memory                 = 512
+      cpu                    = var.cpu
+      memory                 = var.memory
       essential              = var.container_config.essential
       readonlyRootFilesystem = try(var.container_config.readonlyRootFilesystem, false)
       portMappings           = var.container_config.portMappings
