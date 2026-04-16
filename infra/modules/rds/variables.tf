@@ -70,3 +70,14 @@ variable "final_snapshot_identifier" {
   default     = null
   nullable    = true
 }
+
+#cpu and memory variables.action  
+variable "cpu" {
+  type    = number
+  default = 256
+}
+
+variable "memory" {
+  type    = number
+  default = 512
+}
