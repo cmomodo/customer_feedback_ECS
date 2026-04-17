@@ -31,17 +31,6 @@ resource "aws_route_table" "ecs_route_table" {
 }
 
 
-#public subnet
-resource "aws_subnet" "primary_subnet" {
-  vpc_id                  = aws_vpc.coderco_vpc.id
-  cidr_block              = var.primary_subnet
-  availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "main_subnet"
-  }
-}
 
 #first subnet primary_subnet_association
 resource "aws_route_table_association" "primary_subnet_association" {
@@ -59,8 +48,8 @@ resource "aws_subnet" "public_subnet" {
  count = 2
  vpc_id                  = aws_vpc.coderco_vpc.id
 
-  cidr_block              = var.secondary_public_subnet
-  availability_zone       = local.availability_zones[count.index]
+  cidr_block              = public_subnets[count.index].cidr
+  availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
   tags = {
@@ -68,34 +57,19 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
-#availabuility zones for public subnets
-locals {
-  availability_zones = ["us-east-1a", "us-east-1b"]
-}
-
 
 # Private subnets for RDS (no internet access)
 resource "aws_subnet" "private_subnet_1" {
-  vpc_id            = aws_vpc.coderco_vpc.id
-  cidr_block        = var.private_subnet_1_cidr
-  availability_zone = "us-east-1a"
+  count = 2 
+  vpc_id                  = aws_vpc.coderco_vpc.id
+  cidr_block              = private_subnets[count.index].cidr
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = false
 
   tags = {
-    Name = "private_subnet_1"
+    Name = "private_subnet_${count.index}"
   }
 }
-
-#private subnet for ecs
-resource "aws_subnet" "private_subnet_2" {
-  vpc_id            = aws_vpc.coderco_vpc.id
-  cidr_block        = var.private_subnet_2_cidr
-  availability_zone = "us-east-1b"
-
-  tags = {
-    Name = "private_subnet_2"
-  }
-}
-
 # Private route table (no internet gateway route)
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.coderco_vpc.id
@@ -120,64 +94,66 @@ resource "aws_route_table_association" "private_subnet_2_association" {
 resource "aws_security_group" "ecs_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
-  ingress {
-    protocol  = "tcp"
-    self      = true
-    from_port = 80
-    to_port   = 80
-    #allow ip address from range.
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol  = "tcp"
-    self      = true
-    from_port = 443
-    to_port   = 443
-    #allow HTTPS access
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol  = "tcp"
-    self      = true
-    from_port = 3000
-    to_port   = 3000
-    #allow container port access
-    cidr_blocks = ["192.168.1.0/24"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "ecs_security_group"
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ecs_http_ingress" {
+  security_group_id = aws_security_group.ecs_security_group.id
+
+  ip_protocol = "tcp"
+  from_port   = 80
+  to_port     = 80
+  cidr_ipv4   = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ecs_https_ingress" {
+  security_group_id = aws_security_group.ecs_security_group.id
+
+  ip_protocol = "tcp"
+  from_port   = 443
+  to_port     = 443
+  cidr_ipv4   = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ecs_app_3000_ingress" {
+  security_group_id = aws_security_group.ecs_security_group.id
+
+  ip_protocol = "tcp"
+  from_port   = 3000
+  to_port     = 3000
+  cidr_ipv4   = "192.168.1.0/24"
+}
+
+resource "aws_vpc_security_group_egress_rule" "ecs_all_egress" {
+  security_group_id = aws_security_group.ecs_security_group.id
+
+  ip_protocol = "-1"
+  cidr_ipv4   = "0.0.0.0/0"
 }
 
 #security group for rds
 resource "aws_security_group" "rds_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
-  ingress {
-    protocol        = "tcp"
-    from_port       = 5432
-    to_port         = 5432
-    security_groups = [aws_security_group.ecs_security_group.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "rds_security_group"
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_postgres_from_ecs" {
+  security_group_id = aws_security_group.rds_security_group.id
+
+  ip_protocol              = "tcp"
+  from_port                = 5432
+  to_port                  = 5432
+  referenced_security_group_id = aws_security_group.ecs_security_group.id
+}
+
+resource "aws_vpc_security_group_egress_rule" "rds_all_egress" {
+  security_group_id = aws_security_group.rds_security_group.id
+
+  ip_protocol = "-1"
+  cidr_ipv4   = "0.0.0.0/0"
 }

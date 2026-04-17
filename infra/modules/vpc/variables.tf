@@ -4,39 +4,28 @@ variable "cidr_block" {
   type        = string
 }
 
-#primary subnet output
-variable "primary_subnet" {
-  description = "CIDR block for the primary public subnet"
-  type        = string
-}
+#public subnets holder
+variable "public_subnets" {
+  description = "Public subnets"
+  type        = map(object({ cidr = string }))
+  default     = {
+    public-a = { cidr = "10.20.1.0/24" }
+    public-b = { cidr = "10.20.2.0/24" }
+  }
+} 
 
-#secondary subnet output
-variable "secondary_public_subnet" {
-  description = "CIDR block for the secondary public subnet"
-  type        = string
-}
-
-#private subnet cidr holder
-variable "private_subnet_1_cidr" {
-  description = "CIDR block for the first private subnet"
-  type        = string
-}
-
-#private subnet 2 holder
-variable "private_subnet_2_cidr" {
-  description = "CIDR block for the second private subnet"
-  type        = string
-}
-
-#the azs we will use
+#availability zones for public subnet
 variable "availability_zones" {
-  description = "Availability zones to use (index 0 for primary, index 1 for secondary)"
+  description = "Availability zones for public subnet"
   type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
-#we will create custom tags
-variable "tags" {
-  description = "Common tags applied to all resources"
-  type        = map(string)
-  default     = {}
+variable "private_subnets" {
+  description = "Private subnets"
+  type        = map(object({ cidr = string }))
+  default     = {
+    private-a = { cidr = "10.20.3.0/24" }
+    private-b = { cidr = "10.20.4.0/24" }
+  }
 }
