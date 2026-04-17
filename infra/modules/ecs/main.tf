@@ -6,6 +6,10 @@ resource "aws_ecs_cluster" "coder_ecs" {
     name  = "containerInsights"
     value = "enabled"
   }
+
+  tags = {
+    Name = "coderco_ecs"
+  }
 }
 
 #name of the service
@@ -28,6 +32,10 @@ resource "aws_ecs_service" "coderco_ecs" {
     target_group_arn = var.target_group_arn
     container_name   = "fider"
     container_port   = var.container_port
+  }
+
+  tags = {
+    Name = "coderco_ecs"
   }
 }
 
@@ -82,4 +90,8 @@ resource "aws_ecs_task_definition" "task_fider" {
     }
 
   ])
+
+  tags = {
+    Name = "coderco_ecs"
+  }
 }
