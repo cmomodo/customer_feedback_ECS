@@ -54,19 +54,25 @@ resource "aws_route_table_association" "secondary_subnet_association" {
   subnet_id      = aws_subnet.secondary_subnet.id
   route_table_id = aws_route_table.ecs_route_table.id
 }
+#public subnet using for each
+resource "aws_subnet" "public_subnet" {
+ count = 2
+ vpc_id                  = aws_vpc.coderco_vpc.id
 
-#public subnet 2
-resource "aws_subnet" "secondary_subnet" {
-  vpc_id                  = aws_vpc.coderco_vpc.id
   cidr_block              = var.secondary_public_subnet
-  availability_zone       = "us-east-1b"
+  availability_zone       = local.availability_zones[count.index]
   map_public_ip_on_launch = true
-  depends_on              = [aws_subnet.primary_subnet]
 
   tags = {
-    Name = "alb_subnet"
+    Name = "public_subnet_${count.index}"
   }
 }
+
+#availabuility zones for public subnets
+locals {
+  availability_zones = ["us-east-1a", "us-east-1b"]
+}
+
 
 # Private subnets for RDS (no internet access)
 resource "aws_subnet" "private_subnet_1" {
