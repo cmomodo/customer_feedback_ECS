@@ -11,11 +11,11 @@ resource "aws_lb" "coderco_alb" {
 
 #target group for load load_balancer
 resource "aws_lb_target_group" "coderco_alb" {
-  name        = "coderco-tg"
-  port        = var.container_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
+  name                 = "coderco-tg"
+  port                 = var.container_port
+  protocol             = "HTTP"
+  vpc_id               = var.vpc_id
+  target_type          = "ip"
   deregistration_delay = 30
   health_check {
     enabled             = true
