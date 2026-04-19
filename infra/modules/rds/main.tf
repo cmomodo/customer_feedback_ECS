@@ -26,15 +26,6 @@ resource "aws_db_instance" "default" {
   performance_insights_enabled          = true
   performance_insights_retention_period = 0
 
-  #cloudwatch logs
-  enabled_cloudwatch_logs_exports = [
-    "error", # MySQL / MariaDB / PostgreSQL
-    "general",
-    "slowquery",
-    "audit"
-  ]
-
-
 }
 
 #subnet group
