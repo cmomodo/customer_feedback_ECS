@@ -32,8 +32,8 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
       TF_VAR_base_url: ${{ secrets.BASE_URL }}
       TF_VAR_vpc_cidr: ${{ secrets.VPC_CIDR }}
-      TF_VAR_primary_subnet_cidr: ${{ secrets.PRIMARY_SUBNET_CIDR }}
-      TF_VAR_secondary_subnet_cidr: ${{ secrets.SECONDARY_SUBNET_CIDR }}
+      TF_VAR_public_subnet_1_cidr: ${{ secrets.PUBLIC_SUBNET_1_CIDR }}
+      TF_VAR_public_subnet_2_cidr: ${{ secrets.PUBLIC_SUBNET_2_CIDR }}
       TF_VAR_private_subnet_1_cidr: ${{ secrets.PRIVATE_SUBNET_1_CIDR }}
       TF_VAR_private_subnet_2_cidr: ${{ secrets.PRIVATE_SUBNET_2_CIDR }}
       TF_VAR_container_port: ${{ secrets.CONTAINER_PORT }}

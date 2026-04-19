@@ -6,11 +6,7 @@ resource "aws_lb" "coderco_alb" {
   drop_invalid_header_fields = true
   security_groups            = [var.security_group_id]
   subnets                    = var.subnet_ids
-
   enable_deletion_protection = false
-
-
-
 }
 
 #target group for load load_balancer
@@ -20,9 +16,7 @@ resource "aws_lb_target_group" "coderco_alb" {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
-
   deregistration_delay = 30
-
   health_check {
     enabled             = true
     healthy_threshold   = 2

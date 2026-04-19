@@ -29,16 +29,19 @@ module "secrets" {
 }
 
 module "vpc" {
-  source     = "./modules/vpc"
-  cidr_block = var.vpc_cidr
+  source = "./modules/vpc"
 
-  primary_subnet          = var.primary_subnet_cidr
-  secondary_public_subnet = var.secondary_subnet_cidr
-  private_subnet_1_cidr   = var.private_subnet_1_cidr
-  private_subnet_2_cidr   = var.private_subnet_2_cidr
+  cidr_block = var.vpc_cidr
+  public_subnet_cidrs = [
+    var.public_subnet_1_cidr,
+    var.public_subnet_2_cidr,
+  ]
+  private_subnet_cidrs = [
+    var.private_subnet_1_cidr,
+    var.private_subnet_2_cidr,
+  ]
 
   availability_zones = ["us-east-1a", "us-east-1b"]
-  #use ephemeral for this.
 }
 
 module "rds" {

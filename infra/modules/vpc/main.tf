@@ -6,7 +6,6 @@ resource "aws_vpc" "coderco_vpc" {
   }
 }
 
-#internet gateway
 resource "aws_internet_gateway" "coderco_igw" {
   vpc_id = aws_vpc.coderco_vpc.id
 
@@ -15,7 +14,6 @@ resource "aws_internet_gateway" "coderco_igw" {
   }
 }
 
-#route table for vpc.
 resource "aws_route_table" "ecs_route_table" {
   vpc_id = aws_vpc.coderco_vpc.id
 
@@ -24,31 +22,16 @@ resource "aws_route_table" "ecs_route_table" {
     gateway_id = aws_internet_gateway.coderco_igw.id
   }
 
-
   tags = {
     Name = "coderco_rt"
   }
 }
 
-
-
-#first subnet primary_subnet_association
-resource "aws_route_table_association" "primary_subnet_association" {
-  subnet_id      = aws_subnet.primary_subnet.id
-  route_table_id = aws_route_table.ecs_route_table.id
-}
-
-#secondary subnet association
-resource "aws_route_table_association" "secondary_subnet_association" {
-  subnet_id      = aws_subnet.secondary_subnet.id
-  route_table_id = aws_route_table.ecs_route_table.id
-}
-#public subnet using for each
 resource "aws_subnet" "public_subnet" {
- count = 2
- vpc_id                  = aws_vpc.coderco_vpc.id
+  count = 2
 
-  cidr_block              = public_subnets[count.index].cidr
+  vpc_id                  = aws_vpc.coderco_vpc.id
+  cidr_block              = var.public_subnet_cidrs[count.index]
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
@@ -57,12 +40,21 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
+resource "aws_route_table_association" "primary_subnet_association" {
+  subnet_id      = aws_subnet.public_subnet[0].id
+  route_table_id = aws_route_table.ecs_route_table.id
+}
 
-# Private subnets for RDS (no internet access)
+resource "aws_route_table_association" "secondary_subnet_association" {
+  subnet_id      = aws_subnet.public_subnet[1].id
+  route_table_id = aws_route_table.ecs_route_table.id
+}
+
 resource "aws_subnet" "private_subnet_1" {
-  count = 2 
+  count = 2
+
   vpc_id                  = aws_vpc.coderco_vpc.id
-  cidr_block              = private_subnets[count.index].cidr
+  cidr_block              = var.private_subnet_cidrs[count.index]
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = false
 
@@ -70,7 +62,7 @@ resource "aws_subnet" "private_subnet_1" {
     Name = "private_subnet_${count.index}"
   }
 }
-# Private route table (no internet gateway route)
+
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.coderco_vpc.id
 
@@ -79,18 +71,16 @@ resource "aws_route_table" "private_route_table" {
   }
 }
 
-#route table for private subnet
 resource "aws_route_table_association" "private_subnet_1_association" {
-  subnet_id      = aws_subnet.private_subnet_1.id
+  subnet_id      = aws_subnet.private_subnet_1[0].id
   route_table_id = aws_route_table.private_route_table.id
 }
 
 resource "aws_route_table_association" "private_subnet_2_association" {
-  subnet_id      = aws_subnet.private_subnet_2.id
+  subnet_id      = aws_subnet.private_subnet_1[1].id
   route_table_id = aws_route_table.private_route_table.id
 }
 
-#security group for ecs
 resource "aws_security_group" "ecs_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
@@ -123,7 +113,7 @@ resource "aws_vpc_security_group_ingress_rule" "ecs_app_3000_ingress" {
   ip_protocol = "tcp"
   from_port   = 3000
   to_port     = 3000
-  cidr_ipv4   = "192.168.1.0/24"
+  cidr_ipv4   = var.cidr_block
 }
 
 resource "aws_vpc_security_group_egress_rule" "ecs_all_egress" {
@@ -133,7 +123,6 @@ resource "aws_vpc_security_group_egress_rule" "ecs_all_egress" {
   cidr_ipv4   = "0.0.0.0/0"
 }
 
-#security group for rds
 resource "aws_security_group" "rds_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
@@ -145,9 +134,9 @@ resource "aws_security_group" "rds_security_group" {
 resource "aws_vpc_security_group_ingress_rule" "rds_postgres_from_ecs" {
   security_group_id = aws_security_group.rds_security_group.id
 
-  ip_protocol              = "tcp"
-  from_port                = 5432
-  to_port                  = 5432
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
   referenced_security_group_id = aws_security_group.ecs_security_group.id
 }
 
