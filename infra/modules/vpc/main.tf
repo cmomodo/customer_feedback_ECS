@@ -20,6 +20,7 @@ locals {
   }
 }
 
+#private subnet with for each
 resource "aws_subnet" "private" {
   for_each = local.private_subnets
 
@@ -104,6 +105,7 @@ resource "aws_vpc_security_group_ingress_rule" "ecs_app_3000_ingress" {
   cidr_ipv4   = var.cidr_block
 }
 
+#resource egrees rule 
 resource "aws_vpc_security_group_egress_rule" "ecs_all_egress" {
   security_group_id = aws_security_group.ecs_security_group.id
 
@@ -111,6 +113,7 @@ resource "aws_vpc_security_group_egress_rule" "ecs_all_egress" {
   cidr_ipv4   = "0.0.0.0/0"
 }
 
+#rds security group 
 resource "aws_security_group" "rds_security_group" {
   vpc_id = aws_vpc.coderco_vpc.id
 
