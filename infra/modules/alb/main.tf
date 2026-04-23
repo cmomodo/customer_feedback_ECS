@@ -1,7 +1,7 @@
 #the load balancer
 resource "aws_lb" "coderco_alb" {
   name                       = "coderco-alb"
-  internal                   = false
+  internal                   = true
   load_balancer_type         = "application"
   drop_invalid_header_fields = true
   security_groups            = [var.security_group_id]
@@ -45,18 +45,14 @@ resource "aws_lb_listener" "coderco_alb" {
 
 }
 
-# HTTP to HTTPS redirect
+# HTTP forward for CloudFront VPC Origin (CloudFront handles HTTPS termination)
 resource "aws_lb_listener" "coderco_alb_http_redirect" {
   port              = "80"
   protocol          = "HTTP"
   load_balancer_arn = aws_lb.coderco_alb.arn
 
   default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.coderco_alb.arn
   }
 }

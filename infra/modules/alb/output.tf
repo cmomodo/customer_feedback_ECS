@@ -18,3 +18,7 @@ output "alb_zone_id" {
 output "target_group_arn" {
   value = aws_lb_target_group.coderco_alb.arn
 }
+
+output "alb_arn" {
+  value = aws_lb.coderco_alb.arn
+}

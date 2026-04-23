@@ -61,24 +61,9 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "public_subnet_1_cidr" {
-  description = "CIDR block for the first public subnet (e.g. AZ a)"
-  type        = string
-}
-
-variable "public_subnet_2_cidr" {
-  description = "CIDR block for the second public subnet (e.g. AZ b)"
-  type        = string
-}
-
-variable "private_subnet_1_cidr" {
-  description = "CIDR block for the first private subnet"
-  type        = string
-}
-
-variable "private_subnet_2_cidr" {
-  description = "CIDR block for the second private subnet"
-  type        = string
+variable "private_subnet_cidrs" {
+  description = "Map of key to CIDR block for the four private subnets"
+  type        = map(string)
 }
 
 #the container port that should be used
