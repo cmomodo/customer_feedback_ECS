@@ -1,3 +1,4 @@
+#import from aws
 data "aws_acm_certificate" "coderco_cert" {
   domain      = var.domain_name
   statuses    = ["ISSUED"]
