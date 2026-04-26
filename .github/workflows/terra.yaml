@@ -16,7 +16,7 @@ on:
       image_tag:
         description: "Docker image tag to deploy for manual runs"
         required: false
-        default: 1.0.1
+        default: latest
 
 jobs:
   terraform:
@@ -129,7 +129,7 @@ jobs:
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             IMAGE_TAG="${{ inputs.image_tag }}"
           else
-            IMAGE_TAG="1.0.1"
+            IMAGE_TAG="latest"
           fi
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "TF_VAR_image_tag=$IMAGE_TAG" >> "$GITHUB_ENV"
