@@ -161,12 +161,14 @@ def step_infra(image_tag: str = "latest"):
     run(["terraform", "plan", "-lock-timeout=5m", "-out=tfplan"], cwd=INFRA_DIR,
         env={
             "TF_VAR_ecr_repository_name": outputs["ecr_name"],
+            "TF_VAR_create_ecr_repository": "false",
             "TF_VAR_image_tag": image_tag,
         })
     run(["terraform", "apply", "-auto-approve", "-lock-timeout=5m", "tfplan"],
         cwd=INFRA_DIR,
         env={
             "TF_VAR_ecr_repository_name": outputs["ecr_name"],
+            "TF_VAR_create_ecr_repository": "false",
             "TF_VAR_image_tag": image_tag,
         })
 
