@@ -48,6 +48,7 @@ jobs:
       TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
       TF_VAR_identifier_username: ${{ secrets.IDENTIFIER_USERNAME }}
       TF_VAR_identifier_password: ${{ secrets.IDENTIFIER_PASSWORD }}
+      TF_VAR_create_ecr_repository: "false"
       AWS_REGION: ${{ secrets.AWS_REGION }}
       BOOTSTRAP_TF_STATE_BUCKET: ${{ secrets.BOOTSTRAP_TF_STATE_BUCKET != '' && secrets.BOOTSTRAP_TF_STATE_BUCKET || vars.BOOTSTRAP_TF_STATE_BUCKET }}
       BOOTSTRAP_TF_STATE_KEY: ${{ secrets.BOOTSTRAP_TF_STATE_KEY != '' && secrets.BOOTSTRAP_TF_STATE_KEY || vars.BOOTSTRAP_TF_STATE_KEY }}

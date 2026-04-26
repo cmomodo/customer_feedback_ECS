@@ -1,5 +1,5 @@
 output "certificate_arn" {
-  value = data.aws_acm_certificate.coderco_cert.arn
+  value     = data.aws_acm_certificate.coderco_cert.arn
   sensitive = true
 }
 
