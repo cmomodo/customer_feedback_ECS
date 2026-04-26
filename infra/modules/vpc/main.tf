@@ -90,10 +90,10 @@ resource "aws_vpc_security_group_ingress_rule" "ecs_https_ingress" {
 resource "aws_vpc_security_group_ingress_rule" "ecs_cloudfront_ingress" {
   security_group_id = aws_security_group.ecs_security_group.id
 
-  ip_protocol     = "tcp"
-  from_port       = 80
-  to_port         = 80
-  prefix_list_id  = "pl-3b927c52"
+  ip_protocol    = "tcp"
+  from_port      = 80
+  to_port        = 80
+  prefix_list_id = "pl-3b927c52"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "ecs_app_3000_ingress" {
