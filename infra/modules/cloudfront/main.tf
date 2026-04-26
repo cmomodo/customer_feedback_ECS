@@ -1,3 +1,4 @@
+#vpc origin for the alb
 resource "aws_cloudfront_vpc_origin" "alb" {
   vpc_origin_endpoint_config {
     name                   = "coderco-alb-vpc-origin"
@@ -12,6 +13,7 @@ resource "aws_cloudfront_vpc_origin" "alb" {
   }
 }
 
+#cloudfront distribution for the domain
 resource "aws_cloudfront_distribution" "main" {
   enabled         = true
   is_ipv6_enabled = true
@@ -49,6 +51,7 @@ resource "aws_cloudfront_distribution" "main" {
     max_ttl     = 0
   }
 
+  #no geo restrictions for domain
   restrictions {
     geo_restriction {
       restriction_type = "none"
