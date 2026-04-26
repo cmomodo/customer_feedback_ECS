@@ -1,3 +1,4 @@
+#create a new RDS instance
 resource "aws_db_instance" "default" {
   depends_on           = [aws_db_subnet_group.default]
   identifier           = var.db_identifier
