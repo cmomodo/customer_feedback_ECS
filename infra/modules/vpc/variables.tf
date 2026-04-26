@@ -1,42 +1,25 @@
-#the cidr block for vpc holder
 variable "cidr_block" {
   description = "CIDR block for the VPC"
   type        = string
 }
 
-#primary subnet output
-variable "primary_subnet" {
-  description = "CIDR block for the primary public subnet"
-  type        = string
-}
-
-#secondary subnet output
-variable "secondary_public_subnet" {
-  description = "CIDR block for the secondary public subnet"
-  type        = string
-}
-
-#private subnet cidr holder
-variable "private_subnet_1_cidr" {
-  description = "CIDR block for the first private subnet"
-  type        = string
-}
-
-#private subnet 2 holder
-variable "private_subnet_2_cidr" {
-  description = "CIDR block for the second private subnet"
-  type        = string
-}
-
-#the azs we will use
-variable "availability_zones" {
-  description = "Availability zones to use (index 0 for primary, index 1 for secondary)"
-  type        = list(string)
-}
-
-#we will create custom tags
-variable "tags" {
-  description = "Common tags applied to all resources"
+variable "private_subnet_cidrs" {
+  description = "Map of subnet key to CIDR block for private subnets (e.g. { private-1a = \"10.20.3.0/24\" })"
   type        = map(string)
-  default     = {}
+
+  validation {
+    condition     = length(var.private_subnet_cidrs) >= 2
+    error_message = "At least two private subnet CIDRs are required for HA."
+  }
+}
+
+variable "availability_zones" {
+  description = "Availability zones for subnets"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d"]
+
+  validation {
+    condition     = length(var.availability_zones) >= 2
+    error_message = "At least two availability zones are required."
+  }
 }

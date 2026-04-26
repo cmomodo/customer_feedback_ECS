@@ -99,6 +99,8 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 - Used the COPY commands in one line.
 - Managed to fix the run time from 30 minutes to 2 minutes.
 - Trivy scan added to CI/CD pipeline.
+- GitHub Actions builds and pushes the app image for `linux/arm64`.
+- Terraform deploys the exact image tag produced by the Docker workflow so ECS registers a new task definition revision and rolls the service forward.
 
 ## Pipelines
 Bootstrap workflow: create the ecr repository
@@ -107,8 +109,12 @@ Bootstrap workflow: create the ecr repository
 Docker workflow: build and push the docker image
 ![Docker Confirmation](./Images/docker_deploy.png)
 
+The Docker workflow publishes a unique image tag artifact after each successful ARM64 build.
+
 Infrastructure workflow: deploy the application
 ![Docker Confirmation](./Images/terraform_deploy.png)
+
+The infrastructure workflow reads that artifact, sets `TF_VAR_image_tag`, and updates the ECS task definition and service to the new image revision.
 
 Clean up workflow: delete Everything
 ![Docker Confirmation](./Images/cleanup.png)

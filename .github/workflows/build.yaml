@@ -27,6 +27,7 @@ jobs:
       BOOTSTRAP_TF_STATE_BUCKET: ${{ secrets.BOOTSTRAP_TF_STATE_BUCKET != '' && secrets.BOOTSTRAP_TF_STATE_BUCKET || vars.BOOTSTRAP_TF_STATE_BUCKET }}
       BOOTSTRAP_TF_STATE_KEY: ${{ secrets.BOOTSTRAP_TF_STATE_KEY != '' && secrets.BOOTSTRAP_TF_STATE_KEY || vars.BOOTSTRAP_TF_STATE_KEY }}
       BOOTSTRAP_TF_STATE_REGION: ${{ secrets.BOOTSTRAP_TF_STATE_REGION != '' && secrets.BOOTSTRAP_TF_STATE_REGION || vars.BOOTSTRAP_TF_STATE_REGION }}
+      IMAGE_PLATFORM: linux/arm64
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -73,33 +74,42 @@ jobs:
         id: tag
         run: echo "image_tag=${{ github.run_number }}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: Build docker image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ steps.bootstrap.outputs.ecr_repository_name }}
-          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
-        run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ./app/fider-main
-          docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ARM64 docker image for Trivy scan
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app/fider-main
+          platforms: ${{ env.IMAGE_PLATFORM }}
+          push: false
+          outputs: type=docker,dest=/tmp/fider-image.tar
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:${{ steps.tag.outputs.image_tag }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:latest
 
       - name: Trivy scan image
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:${{ steps.tag.outputs.image_tag }}
+          input: /tmp/fider-image.tar
           format: table
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "HIGH,CRITICAL"
 
-      - name: Push docker image to Amazon ECR
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ steps.bootstrap.outputs.ecr_repository_name }}
-          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
-        run: |
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          docker push $REGISTRY/$REPOSITORY:latest
+      - name: Build and push ARM64 docker image to Amazon ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app/fider-main
+          platforms: ${{ env.IMAGE_PLATFORM }}
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:${{ steps.tag.outputs.image_tag }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:latest
 
       - name: Persist build metadata for terraform deploy
         run: |

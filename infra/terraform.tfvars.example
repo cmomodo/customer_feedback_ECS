@@ -1,19 +1,28 @@
+# Copy to terraform.tfvars (gitignored — see repo .gitignore) and replace placeholders.
+# Do not commit terraform.tfvars; it holds your VPC range, domain, and secrets.
+
 aws_region = "us-east-1"
 environment = [
   { name = "BASE_URL", value = "placeholder" },
 ]
-domain_name           = "example.com"
-base_url              = "https://example.com"
-vpc_cidr              = "10.20.0.0/16"
-primary_subnet_cidr   = "10.20.1.0/24"
-secondary_subnet_cidr = "10.20.2.0/24"
-private_subnet_1_cidr = "10.20.3.0/24"
-private_subnet_2_cidr = "10.20.4.0/24"
-container_port        = 3000
-github_repo           = "your-username/your-repo"
-image_tag             = "latest" # CI/CD overrides this with the built commit SHA
+domain_name      = "example.com"
+base_url         = "https://example.com"
+vpc_cidr = "10.0.0.0/16"
+private_subnet_cidrs = {
+  private-1a = "10.0.3.0/24"
+  private-1b = "10.0.4.0/24"
+  private-1c = "10.0.5.0/24"
+  private-1d = "10.0.6.0/24"
+}
+container_port = 3000
+github_repo      = "your-username/your-repo"
+ecr_repository_name = "your-ecr-repository"
+# CI deploys should use the unique build tag produced by the Docker workflow.
+# Keep "latest" for manual or infra-only deployments when no fresh build artifact is available.
+image_tag        = "latest"
+skip_final_snapshot = true
 
-# Sensitive values - set these in GitHub Secrets
+# Set only in private terraform.tfvars or CI secrets — never commit real values.
 db_username         = "your-db-username"
 db_password         = "your-db-password"
 db_name             = "your-db-name"

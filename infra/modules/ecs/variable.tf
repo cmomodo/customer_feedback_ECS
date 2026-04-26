@@ -65,6 +65,12 @@ variable "container_port" {
   default     = 3000
 }
 
+variable "force_new_deployment" {
+  description = "Force a fresh ECS deployment whenever Terraform updates the service"
+  type        = bool
+  default     = true
+}
+
 # Container definition variable
 variable "container_definition" {
   description = "Container definition for the ECS task"
@@ -107,6 +113,7 @@ variable "container_config" {
       logDriver = string
       options   = map(string)
     }),
+    readonlyRootFilesystem = optional(bool)
     #environment secrets
     secrets = optional(list(object({
       name  = string
@@ -114,11 +121,12 @@ variable "container_config" {
     })), [])
   })
   default = {
-    name      = "fider"
-    image     = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
-    cpu       = 256
-    memory    = 512
-    essential = true
+    name                   = "fider"
+    image                  = "449095351082.dkr.ecr.us-east-1.amazonaws.com/fider:1.0.1"
+    cpu                    = 256
+    memory                 = 512
+    essential              = true
+    readonlyRootFilesystem = false
     portMappings = [
       {
         containerPort = 3000
@@ -190,4 +198,25 @@ variable "container_config" {
     #secret
     secrets = []
   }
+}
+
+#cpu & variable
+variable "operating_system_family" {
+  type    = string
+  default = "LINUX"
+}
+
+variable "cpu_architecture" {
+  type    = string
+  default = "ARM64" # set to "ARM64" for Graviton
+}
+#cpu and memory variables
+variable "cpu" {
+  type    = number
+  default = 256
+}
+
+variable "memory" {
+  type    = number
+  default = 512
 }

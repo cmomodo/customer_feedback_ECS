@@ -12,6 +12,11 @@ on:
     paths:
       - "infra/**"
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Docker image tag to deploy for manual runs"
+        required: false
+        default: 1.0.1
 
 jobs:
   terraform:
@@ -32,10 +37,8 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
       TF_VAR_base_url: ${{ secrets.BASE_URL }}
       TF_VAR_vpc_cidr: ${{ secrets.VPC_CIDR }}
-      TF_VAR_primary_subnet_cidr: ${{ secrets.PRIMARY_SUBNET_CIDR }}
-      TF_VAR_secondary_subnet_cidr: ${{ secrets.SECONDARY_SUBNET_CIDR }}
-      TF_VAR_private_subnet_1_cidr: ${{ secrets.PRIVATE_SUBNET_1_CIDR }}
-      TF_VAR_private_subnet_2_cidr: ${{ secrets.PRIVATE_SUBNET_2_CIDR }}
+      TF_VAR_private_subnet_cidrs: >-
+        {"private-1a":"${{ secrets.PRIVATE_SUBNET_1_CIDR }}","private-1b":"${{ secrets.PRIVATE_SUBNET_2_CIDR }}"}
       TF_VAR_container_port: ${{ secrets.CONTAINER_PORT }}
       TF_VAR_github_repo: ${{ secrets.REPO_NAME }}
       TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
@@ -107,15 +110,25 @@ jobs:
           path: .artifacts/build
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
-        continue-on-error: true
+
+      - name: Require build metadata artifact
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: |
+          test -f .artifacts/build/image_tag.txt || {
+            echo "Missing build metadata artifact: .artifacts/build/image_tag.txt"
+            exit 1
+          }
+        working-directory: .
 
       - name: Resolve image tag
         id: image-tag
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ] && [ -f .artifacts/build/image_tag.txt ]; then
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
             IMAGE_TAG="$(cat .artifacts/build/image_tag.txt)"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IMAGE_TAG="${{ inputs.image_tag }}"
           else
-            IMAGE_TAG="latest"
+            IMAGE_TAG="1.0.1"
           fi
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "TF_VAR_image_tag=$IMAGE_TAG" >> "$GITHUB_ENV"

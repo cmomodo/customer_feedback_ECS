@@ -3,17 +3,14 @@ module "acm" {
   domain_name = var.domain_name
 }
 
-# A record pointing domain to ALB
-resource "aws_route53_record" "main" {
-  zone_id = module.acm.route53_zone_id
-  name    = var.domain_name
-  type    = "A"
+module "route53" {
+  source                  = "./modules/route53"
+  domain_name             = var.domain_name
+  cloudfront_domain_name  = module.cloudfront.cloudfront_domain
+  cloudfront_zone_id      = module.cloudfront.cloudfront_zone_id
+  cert_validation_options = module.acm.domain_validation_options
 
-  alias {
-    name                   = module.alb.alb_dns_name
-    zone_id                = module.alb.alb_zone_id
-    evaluate_target_health = true
-  }
+  depends_on = [module.acm, module.cloudfront]
 }
 
 module "secrets" {
@@ -29,16 +26,12 @@ module "secrets" {
 }
 
 module "vpc" {
-  source     = "./modules/vpc"
-  cidr_block = var.vpc_cidr
+  source = "./modules/vpc"
 
-  primary_subnet          = var.primary_subnet_cidr
-  secondary_public_subnet = var.secondary_subnet_cidr
-  private_subnet_1_cidr   = var.private_subnet_1_cidr
-  private_subnet_2_cidr   = var.private_subnet_2_cidr
+  cidr_block           = var.vpc_cidr
+  private_subnet_cidrs = var.private_subnet_cidrs
 
   availability_zones = ["us-east-1a", "us-east-1b"]
-  #use ephemeral for this.
 }
 
 module "rds" {
@@ -50,6 +43,8 @@ module "rds" {
   db_name                     = module.secrets.db_name
   db_identifier               = module.secrets.db_identifier
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
+  skip_final_snapshot         = var.skip_final_snapshot
+  final_snapshot_identifier   = var.final_snapshot_identifier
 
   depends_on = [
     module.vpc
@@ -60,12 +55,9 @@ module "alb" {
   source            = "./modules/alb"
   security_group_id = module.vpc.ecs_security_group
   container_port    = var.container_port
-  subnet_ids = [
-    module.vpc.secondary_subnet_id,
-    module.vpc.primary_subnet_id
-  ]
-  vpc_id          = module.vpc.coderco_vpc
-  certificate_arn = module.acm.certificate_arn
+  subnet_ids        = module.vpc.private_subnet_ids
+  vpc_id            = module.vpc.coderco_vpc
+  certificate_arn   = module.acm.certificate_arn
 
   depends_on = [
     module.vpc,
@@ -92,11 +84,8 @@ module "ecs" {
 
   ecs_security_group_id = module.vpc.ecs_security_group
   container_port        = var.container_port
-  subnet_ids = [
-    module.vpc.primary_subnet_id,
-    module.vpc.secondary_subnet_id
-  ]
-  target_group_arn = module.alb.target_group_arn
+  subnet_ids            = module.vpc.private_subnet_ids
+  target_group_arn      = module.alb.target_group_arn
 
   execution_role_arn = module.iam.ecs_task_execution_role_arn
   task_role_arn      = module.iam.ecs_task_execution_role_arn
@@ -114,18 +103,6 @@ module "ecs" {
   ]
 }
 
-# Create ECR repo in infra when bootstrap stack is not used.
-resource "aws_ecr_repository" "app" {
-  count = var.create_ecr_repository ? 1 : 0
-
-  name                 = var.ecr_repository_name
-  image_tag_mutability = "MUTABLE"
-  force_delete         = true
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
 
 #imported ecr repo
 data "aws_ecr_repository" "app" {

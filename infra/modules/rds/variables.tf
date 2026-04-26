@@ -11,11 +11,13 @@ variable "private_subnet_ids" {
 variable "db_username" {
   description = "Database master username"
   type        = string
+  sensitive   = true
 }
 
 variable "db_password" {
   description = "Database master password"
   type        = string
+  sensitive   = true
 }
 
 variable "db_name" {
@@ -56,4 +58,28 @@ variable "instance_class" {
   description = "RDS instance class"
   type        = string
   default     = "db.t3.micro"
+}
+
+variable "skip_final_snapshot" {
+  description = "Whether to skip the final snapshot when destroying the RDS instance"
+  type        = bool
+  default     = true
+}
+
+variable "final_snapshot_identifier" {
+  description = "Optional final snapshot identifier override used when skip_final_snapshot is false"
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+#cpu and memory variables.action  
+variable "cpu" {
+  type    = number
+  default = 256
+}
+
+variable "memory" {
+  type    = number
+  default = 512
 }

@@ -61,24 +61,9 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "primary_subnet_cidr" {
-  description = "CIDR block for the primary public subnet"
-  type        = string
-}
-
-variable "secondary_subnet_cidr" {
-  description = "CIDR block for the secondary public subnet"
-  type        = string
-}
-
-variable "private_subnet_1_cidr" {
-  description = "CIDR block for the first private subnet"
-  type        = string
-}
-
-variable "private_subnet_2_cidr" {
-  description = "CIDR block for the second private subnet"
-  type        = string
+variable "private_subnet_cidrs" {
+  description = "Map of key to CIDR block for the four private subnets"
+  type        = map(string)
 }
 
 #the container port that should be used
@@ -119,4 +104,17 @@ variable "create_ecr_repository" {
   description = "Create the ECR repository in the infra stack instead of reading it from bootstrap"
   type        = bool
   default     = true
+}
+
+variable "skip_final_snapshot" {
+  description = "Whether to skip the final RDS snapshot on destroy"
+  type        = bool
+  default     = true
+}
+
+variable "final_snapshot_identifier" {
+  description = "Optional override for the final RDS snapshot identifier when skip_final_snapshot is false"
+  type        = string
+  default     = null
+  nullable    = true
 }

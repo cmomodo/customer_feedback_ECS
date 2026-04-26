@@ -6,27 +6,37 @@ resource "aws_ecs_cluster" "coder_ecs" {
     name  = "containerInsights"
     value = "enabled"
   }
+
+  tags = {
+    Name = "coderco_ecs"
+  }
 }
 
 #name of the service
 resource "aws_ecs_service" "coderco_ecs" {
-  name            = "runner_one"
-  cluster         = aws_ecs_cluster.coder_ecs.id
-  task_definition = aws_ecs_task_definition.task_fider.arn
-  desired_count   = 1
+  name                 = "runner_one"
+  cluster              = aws_ecs_cluster.coder_ecs.id
+  task_definition      = aws_ecs_task_definition.task_fider.arn
+  desired_count        = 1
+  force_new_deployment = var.force_new_deployment
+
 
   #fargate to run the container
   launch_type = "FARGATE"
   network_configuration {
     security_groups  = [var.ecs_security_group_id]
     subnets          = var.subnet_ids
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = var.target_group_arn
     container_name   = "fider"
     container_port   = var.container_port
+  }
+
+  tags = {
+    Name = "coderco_ecs"
   }
 }
 
@@ -35,24 +45,27 @@ resource "aws_ecs_task_definition" "task_fider" {
   family                   = "service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = var.cpu
+  memory                   = var.memory
   execution_role_arn       = var.execution_role_arn
   task_role_arn            = var.task_role_arn
 
+
+
   runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "X86_64"
+    operating_system_family = var.operating_system_family
+    cpu_architecture        = var.cpu_architecture
   }
 
   container_definitions = jsonencode([
     {
-      name         = var.container_config.name
-      image        = "${var.ecr_repository_url}:${var.image_tag}"
-      cpu          = 256
-      memory       = 512
-      essential    = var.container_config.essential
-      portMappings = var.container_config.portMappings
+      name                   = var.container_config.name
+      image                  = "${var.ecr_repository_url}:${var.image_tag}"
+      cpu                    = var.cpu
+      memory                 = var.memory
+      essential              = var.container_config.essential
+      readonlyRootFilesystem = try(var.container_config.readonlyRootFilesystem, false)
+      portMappings           = var.container_config.portMappings
       secrets = concat(var.container_config.secrets, [
         {
           name      = var.jwt_secret_name
@@ -78,4 +91,8 @@ resource "aws_ecs_task_definition" "task_fider" {
     }
 
   ])
+
+  tags = {
+    Name = "coderco_ecs"
+  }
 }
