@@ -27,6 +27,7 @@ jobs:
       BOOTSTRAP_TF_STATE_BUCKET: ${{ secrets.BOOTSTRAP_TF_STATE_BUCKET != '' && secrets.BOOTSTRAP_TF_STATE_BUCKET || vars.BOOTSTRAP_TF_STATE_BUCKET }}
       BOOTSTRAP_TF_STATE_KEY: ${{ secrets.BOOTSTRAP_TF_STATE_KEY != '' && secrets.BOOTSTRAP_TF_STATE_KEY || vars.BOOTSTRAP_TF_STATE_KEY }}
       BOOTSTRAP_TF_STATE_REGION: ${{ secrets.BOOTSTRAP_TF_STATE_REGION != '' && secrets.BOOTSTRAP_TF_STATE_REGION || vars.BOOTSTRAP_TF_STATE_REGION }}
+      IMAGE_PLATFORM: linux/arm64
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -79,11 +80,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build docker image for Trivy scan
+      - name: Build ARM64 docker image for Trivy scan
         uses: docker/build-push-action@v5
         with:
           context: ./app/fider-main
-          platforms: linux/arm64
+          platforms: ${{ env.IMAGE_PLATFORM }}
           push: false
           outputs: type=docker,dest=/tmp/fider-image.tar
           tags: |
@@ -100,11 +101,11 @@ jobs:
           vuln-type: "os,library"
           severity: "HIGH,CRITICAL"
 
-      - name: Build and push docker image to Amazon ECR
+      - name: Build and push ARM64 docker image to Amazon ECR
         uses: docker/build-push-action@v5
         with:
           context: ./app/fider-main
-          platforms: linux/arm64
+          platforms: ${{ env.IMAGE_PLATFORM }}
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ steps.bootstrap.outputs.ecr_repository_name }}:${{ steps.tag.outputs.image_tag }}

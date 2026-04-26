@@ -65,6 +65,12 @@ variable "container_port" {
   default     = 3000
 }
 
+variable "force_new_deployment" {
+  description = "Force a fresh ECS deployment whenever Terraform updates the service"
+  type        = bool
+  default     = true
+}
+
 # Container definition variable
 variable "container_definition" {
   description = "Container definition for the ECS task"

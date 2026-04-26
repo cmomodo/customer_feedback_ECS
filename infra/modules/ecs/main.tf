@@ -14,10 +14,11 @@ resource "aws_ecs_cluster" "coder_ecs" {
 
 #name of the service
 resource "aws_ecs_service" "coderco_ecs" {
-  name            = "runner_one"
-  cluster         = aws_ecs_cluster.coder_ecs.id
-  task_definition = aws_ecs_task_definition.task_fider.arn
-  desired_count   = 1
+  name                 = "runner_one"
+  cluster              = aws_ecs_cluster.coder_ecs.id
+  task_definition      = aws_ecs_task_definition.task_fider.arn
+  desired_count        = 1
+  force_new_deployment = var.force_new_deployment
 
 
   #fargate to run the container
