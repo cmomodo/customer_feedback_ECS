@@ -14,6 +14,6 @@ output "log_group_name" {
 }
 #output for oidc
 output "github_oidc_role_arn" {
-  value = data.aws_iam_role.github_oidc.arn
+  value     = data.aws_iam_role.github_oidc.arn
   sensitive = true
 }
