@@ -70,13 +70,29 @@ resource "aws_ecs_task_definition" "task_fider" {
         {
           name      = var.jwt_secret_name
           valueFrom = var.task_secret_arn
+        },
+        {
+          name      = "OAUTH2_CLIENTSECRET"
+          valueFrom = var.cognito_client_secret_arn
         }
       ])
-      environment = [
-        for env in var.container_config.environment :
-        env.name == "BASE_URL" ? { name = "BASE_URL", value = var.base_url } :
-        env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = var.database_url } : env
-      ]
+      environment = concat(
+        [
+          for env in var.container_config.environment :
+          env.name == "BASE_URL" ? { name = "BASE_URL", value = var.base_url } :
+          env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = var.database_url } : env
+        ],
+        var.cognito_client_id != "" ? [
+          { name = "OAUTH2_CLIENTID",          value = var.cognito_client_id },
+          { name = "OAUTH2_AUTHORIZATIONURL",  value = var.cognito_auth_url },
+          { name = "OAUTH2_TOKENURL",          value = var.cognito_token_url },
+          { name = "OAUTH2_PROFILEURL",        value = var.cognito_userinfo_url },
+          { name = "OAUTH2_SCOPE",             value = "openid email profile" },
+          { name = "OAUTH2_PROFILEEMAIL_PATH", value = "email" },
+          { name = "OAUTH2_PROFILENAME_PATH",  value = "name" },
+          { name = "OAUTH2_PROFILEID_PATH",    value = "sub" }
+        ] : []
+      )
 
       logConfiguration = {
         logDriver = var.container_config.logConfiguration.logDriver

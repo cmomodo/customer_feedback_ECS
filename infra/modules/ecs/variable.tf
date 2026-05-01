@@ -220,3 +220,34 @@ variable "memory" {
   type    = number
   default = 512
 }
+
+# Cognito OAuth2 variables
+variable "cognito_client_id" {
+  description = "Cognito app client ID for Fider OAuth2"
+  type        = string
+  default     = ""
+}
+
+variable "cognito_client_secret_arn" {
+  description = "Secrets Manager ARN for the Cognito client secret"
+  type        = string
+  default     = ""
+}
+
+variable "cognito_auth_url" {
+  description = "Cognito OAuth2 authorization endpoint"
+  type        = string
+  default     = ""
+}
+
+variable "cognito_token_url" {
+  description = "Cognito OAuth2 token endpoint"
+  type        = string
+  default     = ""
+}
+
+variable "cognito_userinfo_url" {
+  description = "Cognito OAuth2 userinfo endpoint"
+  type        = string
+  default     = ""
+}

@@ -1,137 +1,115 @@
-# Customer Feedback App
+# Customer Feedback Ecosystem (ECS v1)
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up. We are currently working on adding authentication and authorization features using Cognito. We will also be adding SES for email notifications.
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 
-### Task
+An automated, scalable deployment of the open-source **Customer Feedback App** (based on Fider) on AWS ECS. This project leverages Terraform for Infrastructure as Code (IaC) and GitHub Actions for continuous integration and delivery.
 
-We were assigned to deploy an open source app using Terraform. The app chosen was the Customer Feedback App.
-We use a container image for the app, push it to ECR (recommended) or DockerHub, and use a CI/CD pipeline to build, test, and push the container image.
-Deploy the app on ECS using Terraform. All the resources should be provisioned using Terraform. Use TF modules.
-We will be using the CI/CD pipelines for easy deployment and automation. We have 4 different pipelines.
-The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
+---
 
-## System Design
+## Overview
+
+The **Customer Feedback App** is a powerful tool designed to streamline customer feedback and enhance user experience. This repository provides a production-ready infrastructure to deploy the application with high availability, security, and automation.
+
+**Live Demo:** 
+- Sign Up: [https://ceedev.co.uk/signup](https://ceedev.co.uk/signup)
+- Health Check: [https://ceedev.co.uk/_health](https://ceedev.co.uk/_health)
+
+---
+
+## System Architecture
+
+The architecture is designed for scalability and security, utilizing AWS best practices:
+
 ![System Design Diagram](./Images/system_design.png)
+
+### Key Components:
+- **Compute**: AWS ECS (Elastic Container Service) with Fargate.
+- **Network**: VPC with public/private subnets and an Application Load Balancer (ALB).
+- **Storage**: Amazon RDS for persistent data and ECR for container images.
+- **Security**: ACM for SSL/TLS, Secrets Manager for credentials, and IAM for least-privilege access.
+
+---
 
 ## Project Structure
 
-```
+```text
 .
-├── .github/
-│   └── workflows/
-│       ├── bootstrap.yaml
-│       ├── build.yaml
-│       ├── clean.yaml
-│       └── terra.yaml
-├── Images/
-│   ├── ecs_p1.png
-│   ├── health_check.png
-│   ├── https.png
-│   ├── system_design.png
-│   └── trivy_scan.png
-├── app/
-│   └── fider-main/
-│       ├── .github/
-│       ├── app/
-│       ├── e2e/
-│       ├── etc/
-│       ├── locale/
-│       ├── migrations/
-│       ├── public/
-│       ├── scripts/
-│       ├── views/
-│       └── ...
-├── bootstrap/
-│   ├── gh_example.sh
-│   ├── gh_setup.sh
-│   ├── main.tf
-│   ├── outputs.tf
-│   ├── providers.tf
-│   ├── README.md
-│   ├── terraform.tfvars.example
-│   └── variables.tf
-├── infra/
-│   ├── generated-diagrams/
-│   ├── modules/
-│   │   ├── acm/
-│   │   ├── alb/
-│   │   ├── ecs/
-│   │   ├── iam/
-│   │   ├── rds/
-│   │   ├── secrets/
-│   │   └── vpc/
-│   ├── polices/
-│   ├── .terraform.lock.hcl
-│   ├── aws.tf
-│   ├── main.tf
-│   ├── state.tf
-│   ├── terraform.tfvars
-│   ├── terraform.tfvars.example
-│   └── variables.tf
-├── .gitignore
-├── .pre-commit-config.yaml
-├── local_run.py
-└── README.md
+├── .github/workflows/      # CI/CD pipeline definitions
+│   ├── bootstrap.yaml      # Environment initialization
+│   ├── build.yaml          # Docker build and push
+│   ├── clean.yaml          # Resource teardown
+│   └── terra.yaml          # Infrastructure deployment
+├── app/                    # Application source code
+├── bootstrap/              # Initial S3/DynamoDB setup for Terraform state
+└── infra/                  # Core Infrastructure (Terraform)
+    ├── modules/            # Reusable TF modules (VPC, ALB, ECS, etc.)
+    ├── policies/           # IAM and security policies
+    ├── main.tf             # Root module configuration
+    └── variables.tf        # Infrastructure inputs
 ```
 
-## Build App
+---
+
+## Getting Started
+
+### Prerequisites
+- AWS CLI configured with appropriate permissions.
+- Terraform v1.0+ installed.
+- GitHub repository secrets configured for CI/CD.
+
+### Initial Setup (Bootstrap)
+Before deploying the main infrastructure, initialize the remote backend and ECR repositories:
 
 ```bash
-terraform -chdir=bootstrap init -reconfigure \
-  -backend-config='bucket=my-27-state-bucket' \
-  -backend-config='region=us-east-1'
-
-terraform -chdir=bootstrap plan -var-file=boot.tfvars
-terraform -chdir=bootstrap apply -var-file=boot.tfvars
-
+# Initialize and apply bootstrap configuration
+terraform -chdir=bootstrap init -reconfigure
+terraform -chdir=bootstrap apply -var-file=terraform.tfvars
 ```
 
-## Health Check Confirmation
+---
+
+## CI/CD Pipelines
+
+We utilize four primary GitHub Action workflows for complete lifecycle management:
+
+### 1. Bootstrap Workflow
+Creates the initial ECR repository and foundational resources.
+![Bootstrap Workflow](./Images/bootstrap.png)
+
+### 2. Docker Workflow (Build & Push)
+Builds and pushes the Docker image for `linux/arm64`. Includes a **Trivy** security scan.
+![Docker Workflow](./Images/docker_deploy.png)
+
+### 3. Infrastructure Workflow (Deploy)
+Deploys the application using Terraform. It automatically updates the ECS task definition to the latest image tag.
+![Infrastructure Workflow](./Images/terraform_deploy.png)
+
+### 4. Clean Up Workflow
+Deletes all provisioned resources to optimize costs when the environment is not in use.
+![Clean Up Workflow](./Images/cleanup.png)
+
+---
+
+## Security & Optimization
+
+- **Vulnerability Scanning**: Integrated **Trivy** scanning in the CI/CD pipeline.
+![Trivy Scan](./Images/trivy_scan.png)
+- **High Performance**: Optimized Docker multi-stage builds, reducing build time from **30 minutes to 2 minutes**.
+- **Secure Runtime**: Containerized application runs as a non-root user.
+- **HTTPS/SSL**: Automated certificate management via ACM.
+![HTTPS Confirmation](./Images/https.png)
+- **Health Monitoring**: Continuous health checks via the Load Balancer.
 ![Health Check Confirmation](./Images/health_check.png)
 
-## HTTPs Confirmation
-![HTTPs Confirmation](./Images/https.png)
+---
 
-## Docker
-![Docker Confirmation](./Images/trivy_scan.png)
+## Roadmap & Future Enhancements
 
-- Created a non-root user.
-- Used the COPY commands in one line.
-- Managed to fix the run time from 30 minutes to 2 minutes.
-- Trivy scan added to CI/CD pipeline.
-- GitHub Actions builds and pushes the app image for `linux/arm64`.
-- Terraform deploys the exact image tag produced by the Docker workflow so ECS registers a new task definition revision and rolls the service forward.
+- [ ] **Cognito Integration**: Implementing robust authentication and authorization (`feature/cognito`).
+- [ ] **Email Notifications**: Integrating AWS SES for automated user communication.
+- [ ] **Enhanced Monitoring**: Adding CloudWatch dashboards and automated alerting.
 
-## Pipelines
-Bootstrap workflow: create the ecr repository
-![Docker Confirmation](./Images/bootsrap.png)
 
-Docker workflow: build and push the docker image
-![Docker Confirmation](./Images/docker_deploy.png)
-
-The Docker workflow publishes a unique image tag artifact after each successful ARM64 build.
-
-Infrastructure workflow: deploy the application
-![Docker Confirmation](./Images/terraform_deploy.png)
-
-The infrastructure workflow reads that artifact, sets `TF_VAR_image_tag`, and updates the ECS task definition and service to the new image revision.
-
-Clean up workflow: delete Everything
-![Docker Confirmation](./Images/cleanup.png)
-
-## Certificate
-For the HTTPS certificate, it's easier to use the CLI. This was suggested by Amazon Q.
-
-```bash
-aws acm request-certificate --domain-name ceedev.co.uk --validation-method DNS
-```
-
-## Feature Improvements
-
-- We will add Cognito to allow authentication and authorization.
-- We will be adding SES for emails.
-- We have been shipping different versions of secrets because it gets retained for 7 days
-- When using secrets with a different version number, even after deployment there's a delay of 7 days before it's gone, that's why we now set it to zero
-- My computer is a Mac which uses amd64 but GitHub Actions uses x86_64, so I normally have to switch between them
-- Create a script for local execution
-- Implement checkov into the CI/CD pipeline.

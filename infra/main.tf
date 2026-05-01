@@ -95,11 +95,19 @@ module "ecs" {
   jwt_secret_name = module.secrets.jwt_secret_name
   database_url    = local.database_url
 
+  # Cognito OAuth2
+  cognito_client_id         = aws_cognito_user_pool_client.app.id
+  cognito_client_secret_arn = aws_secretsmanager_secret.cognito_client_secret.arn
+  cognito_auth_url          = local.cognito_base_url != "" ? "${local.cognito_base_url}/oauth2/authorize" : ""
+  cognito_token_url         = local.cognito_base_url != "" ? "${local.cognito_base_url}/oauth2/token" : ""
+  cognito_userinfo_url      = local.cognito_base_url != "" ? "${local.cognito_base_url}/oauth2/userInfo" : ""
+
   depends_on = [
     module.iam,
     module.alb,
     module.secrets,
-    module.rds
+    module.rds,
+    aws_cognito_user_pool_client.app
   ]
 }
 
