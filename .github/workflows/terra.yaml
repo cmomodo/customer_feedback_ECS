@@ -1,11 +1,6 @@
 name: Terraform Deploy workflow
 
 on:
-  workflow_run:
-    workflows:
-      - "Docker build and push"
-    types:
-      - completed
   push:
     branches:
       - main
@@ -15,20 +10,17 @@ on:
     inputs:
       image_tag:
         description: "Docker image tag to deploy for manual runs"
-        required: false
-        default: latest
+        required: true
 
 jobs:
   terraform:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     concurrency:
-      group: terraform-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      group: terraform-${{ github.sha }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-      actions: write
     defaults:
       run:
         working-directory: ./infra
@@ -56,8 +48,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -102,35 +92,18 @@ jobs:
           echo "TF_VAR_ecr_repository_name=${{ steps.bootstrap.outputs.ecr_repository_name }}" >> "$GITHUB_ENV"
         working-directory: .
 
-      - name: Download build metadata artifact
-        if: ${{ github.event_name == 'workflow_run' }}
-        id: download-build-meta
-        uses: actions/download-artifact@v4
-        with:
-          name: build-metadata
-          path: .artifacts/build
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
-
-      - name: Require build metadata artifact
-        if: ${{ github.event_name == 'workflow_run' }}
-        run: |
-          test -f .artifacts/build/image_tag.txt || {
-            echo "Missing build metadata artifact: .artifacts/build/image_tag.txt"
-            exit 1
-          }
-        working-directory: .
-
       - name: Resolve image tag
         id: image-tag
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            IMAGE_TAG="$(cat .artifacts/build/image_tag.txt)"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             IMAGE_TAG="${{ inputs.image_tag }}"
           else
-            IMAGE_TAG="latest"
+            IMAGE_TAG="${{ vars.DEPLOY_IMAGE_TAG }}"
           fi
+          test -n "$IMAGE_TAG" || {
+            echo "Set the DEPLOY_IMAGE_TAG repository variable to an existing immutable ECR image tag."
+            exit 1
+          }
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "TF_VAR_image_tag=$IMAGE_TAG" >> "$GITHUB_ENV"
         working-directory: .
