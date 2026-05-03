@@ -1,9 +1,3 @@
-variable "base_url" {
-  description = "Base URL used for Cognito callback and logout URLs"
-  type        = string
-  default     = "https://ceedev.co.uk"
-}
-
 resource "aws_cognito_user_pool" "pool" {
   name = "linkup-user-pool"
 
@@ -51,7 +45,7 @@ resource "aws_secretsmanager_secret_version" "cognito_client_secret" {
 }
 
 locals {
-  cognito_base_url = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
+  cognito_base_url = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${data.aws_region.current.region}.amazoncognito.com"
 }
 
 data "aws_region" "current" {}

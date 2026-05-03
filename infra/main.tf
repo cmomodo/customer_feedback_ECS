@@ -112,7 +112,7 @@ module "ecs" {
 }
 
 
-#imported ecr repo
+# Imported ECR repo when bootstrap owns repository creation.
 data "aws_ecr_repository" "app" {
   count = var.create_ecr_repository ? 0 : 1
   name  = var.ecr_repository_name

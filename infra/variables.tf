@@ -103,7 +103,7 @@ variable "ecr_repository_name" {
 variable "create_ecr_repository" {
   description = "Create the ECR repository in the infra stack instead of reading it from bootstrap"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "skip_final_snapshot" {
