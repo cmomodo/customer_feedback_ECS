@@ -83,14 +83,14 @@ resource "aws_ecs_task_definition" "task_fider" {
           env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = var.database_url } : env
         ],
         var.cognito_client_id != "" ? [
-          { name = "OAUTH2_CLIENTID",          value = var.cognito_client_id },
-          { name = "OAUTH2_AUTHORIZATIONURL",  value = var.cognito_auth_url },
-          { name = "OAUTH2_TOKENURL",          value = var.cognito_token_url },
-          { name = "OAUTH2_PROFILEURL",        value = var.cognito_userinfo_url },
-          { name = "OAUTH2_SCOPE",             value = "openid email profile" },
+          { name = "OAUTH2_CLIENTID", value = var.cognito_client_id },
+          { name = "OAUTH2_AUTHORIZATIONURL", value = var.cognito_auth_url },
+          { name = "OAUTH2_TOKENURL", value = var.cognito_token_url },
+          { name = "OAUTH2_PROFILEURL", value = var.cognito_userinfo_url },
+          { name = "OAUTH2_SCOPE", value = "openid email profile" },
           { name = "OAUTH2_PROFILEEMAIL_PATH", value = "email" },
-          { name = "OAUTH2_PROFILENAME_PATH",  value = "name" },
-          { name = "OAUTH2_PROFILEID_PATH",    value = "sub" }
+          { name = "OAUTH2_PROFILENAME_PATH", value = "name" },
+          { name = "OAUTH2_PROFILEID_PATH", value = "sub" }
         ] : []
       )
 
