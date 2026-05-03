@@ -54,51 +54,9 @@ variable "database_url" {
   type        = string
 }
 
-variable "cognito_client_id" {
-  description = "Cognito app client ID for OAuth"
-  type        = string
-}
-
-variable "cognito_client_secret" {
-  description = "Cognito app client secret for OAuth"
-  type        = string
-  sensitive   = true
-}
-
-variable "cognito_endpoint" {
-  description = "Cognito hosted UI base URL for OAuth"
-  type        = string
-}
-
 variable "jwt_secret_name" {
   description = "Secret name for JWT secret env var"
   type        = string
-}
-
-variable "email_noreply" {
-  description = "From address Fider uses for outgoing email (must be on the SES-verified domain)"
-  type        = string
-}
-
-variable "ses_region" {
-  description = "AWS region where the SES domain identity lives"
-  type        = string
-}
-
-variable "ses_credentials_secret_arn" {
-  description = "ARN of the Secrets Manager secret holding the SES IAM user credentials (JSON: access_key_id + secret_access_key). Used so the ECS execution role can read it."
-  type        = string
-}
-
-variable "ses_access_key_id_value_from" {
-  description = "ECS task definition valueFrom string for EMAIL_AWSSES_ACCESS_KEY_ID (e.g. <secret-arn>:access_key_id::)"
-  type        = string
-}
-
-variable "ses_secret_access_key_value_from" {
-  description = "ECS task definition valueFrom string for EMAIL_AWSSES_SECRET_ACCESS_KEY (e.g. <secret-arn>:secret_access_key::)"
-  type        = string
-  sensitive   = true
 }
 
 variable "container_port" {
@@ -183,18 +141,6 @@ variable "container_config" {
       {
         name  = "DATABASE_URL"
         value = "postgres://user:password@host:5432/dbname"
-      },
-      {
-        name  = "EMAIL"
-        value = "awsses"
-      },
-      {
-        name  = "EMAIL_NOREPLY"
-        value = "noreply@yourdomain.com"
-      },
-      {
-        name  = "EMAIL_AWSSES_REGION"
-        value = "us-east-1"
       },
       {
         name  = "GO_ENV"

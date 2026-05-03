@@ -40,10 +40,7 @@ resource "aws_iam_role_policy" "task_exec_logs" {
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = [
-          "arn:aws:secretsmanager:us-east-1:449095351082:secret:task_encryption-*",
-          "arn:aws:secretsmanager:us-east-1:449095351082:secret:fider-ses-credentials-*"
-        ]
+        Resource = "arn:aws:secretsmanager:us-east-1:449095351082:secret:task_encryption-*"
       }
     ]
   })

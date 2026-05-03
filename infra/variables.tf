@@ -118,14 +118,3 @@ variable "final_snapshot_identifier" {
   default     = null
   nullable    = true
 }
-
-variable "email_noreply" {
-  description = "From address Fider uses for outgoing email. Must be on a domain you control (the SES domain identity)."
-  type        = string
-}
-
-variable "ses_sandbox_verified_recipients" {
-  description = "Email addresses to verify as recipients while SES is in sandbox mode. Each address receives a one-time AWS confirmation link that must be clicked. Leave empty once production access is granted."
-  type        = list(string)
-  default     = []
-}
