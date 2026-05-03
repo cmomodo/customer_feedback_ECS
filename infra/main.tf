@@ -95,9 +95,7 @@ module "ecs" {
   jwt_secret_name = module.secrets.jwt_secret_name
   database_url    = local.database_url
 
-  cognito_client_id     = var.cognito_client_id
-  cognito_client_secret = var.cognito_client_secret
-  cognito_endpoint      = var.cognito_endpoint
+  
 
   depends_on = [
     module.iam,
