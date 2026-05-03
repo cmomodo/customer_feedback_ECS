@@ -118,3 +118,19 @@ variable "final_snapshot_identifier" {
   default     = null
   nullable    = true
 }
+
+variable "cognito_client_id" {
+  description = "Cognito app client ID"
+  type        = string
+}
+
+variable "cognito_client_secret" {
+  description = "Cognito app client secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "cognito_endpoint" {
+  description = "Cognito hosted UI base URL"
+  type        = string
+}

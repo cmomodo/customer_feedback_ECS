@@ -74,8 +74,12 @@ resource "aws_ecs_task_definition" "task_fider" {
       ])
       environment = [
         for env in var.container_config.environment :
-        env.name == "BASE_URL" ? { name = "BASE_URL", value = var.base_url } :
-        env.name == "DATABASE_URL" ? { name = "DATABASE_URL", value = var.database_url } : env
+        env.name == "BASE_URL"                    ? { name = "BASE_URL",                    value = var.base_url } :
+        env.name == "DATABASE_URL"                ? { name = "DATABASE_URL",                value = var.database_url } :
+        env.name == "OAUTH_COGNITO_CLIENT_ID"     ? { name = "OAUTH_COGNITO_CLIENT_ID",     value = var.cognito_client_id } :
+        env.name == "OAUTH_COGNITO_CLIENT_SECRET" ? { name = "OAUTH_COGNITO_CLIENT_SECRET", value = var.cognito_client_secret } :
+        env.name == "OAUTH_COGNITO_ENDPOINT"      ? { name = "OAUTH_COGNITO_ENDPOINT",      value = var.cognito_endpoint } :
+        env
       ]
 
       logConfiguration = {

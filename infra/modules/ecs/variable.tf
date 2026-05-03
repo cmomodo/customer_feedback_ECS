@@ -59,6 +59,22 @@ variable "jwt_secret_name" {
   type        = string
 }
 
+variable "cognito_client_id" {
+  description = "Cognito app client ID for Fider OAuth"
+  type        = string
+}
+
+variable "cognito_client_secret" {
+  description = "Cognito app client secret for Fider OAuth"
+  type        = string
+  sensitive   = true
+}
+
+variable "cognito_endpoint" {
+  description = "Cognito hosted UI base URL (https://<domain>.auth.<region>.amazoncognito.com)"
+  type        = string
+}
+
 variable "container_port" {
   description = "Container port for the ECS service (keep in sync with portMappings)"
   type        = number
@@ -185,6 +201,18 @@ variable "container_config" {
       {
         name  = "LOG_FILE_OUTPUT"
         value = "logs/output.log"
+      },
+      {
+        name  = "OAUTH_COGNITO_CLIENT_ID"
+        value = ""
+      },
+      {
+        name  = "OAUTH_COGNITO_CLIENT_SECRET"
+        value = ""
+      },
+      {
+        name  = "OAUTH_COGNITO_ENDPOINT"
+        value = ""
       }
     ]
     logConfiguration = {
