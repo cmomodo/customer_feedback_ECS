@@ -1,10 +1,10 @@
 # LinkUp's Customer Feedback App on ECS
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. This is a full stack application that includes a frontend, backend, and database. we have a pre-commit hook to run checks on the code. Pipelines are used to build, test, and push the container image. The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup.
+This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. This is a full stack application that includes a frontend, backend, and database. we have a pre-commit hook to run checks on the code. Pipelines are used to build, test, and push the container image. The app is live on [https://ceedev.co.uk/\_health](https://ceedev.co.uk/_health) or [https://ceedev.co.uk/signup](https://ceedev.co.uk/signup).
 
 ## System Design
 
-![System Design Diagram](./Images/architecture2.png)
+System Design Diagram
 
 ## Project Structure
 
@@ -70,6 +70,12 @@ This project is based on Customer Feedback App, an open source tool designed to 
 ## Build App
 
 ```bash
+terraform apply -auto-approve
+```
+
+### Bootstrap build
+
+```bash
 terraform -chdir=bootstrap init -reconfigure \
   -backend-config='bucket=my-27-state-bucket' \
   -backend-config='region=us-east-1'
@@ -81,15 +87,15 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 
 ## Health Check Confirmation
 
-![Health Check Confirmation](./Images/health_check.png)
+Health Check Confirmation
 
 ## HTTPs Confirmation
 
-![HTTPs Confirmation](./Images/https.png)
+HTTPs Confirmation
 
 ## Docker
 
-![Docker Confirmation](./Images/trivy_scan.png)
+Docker Confirmation
 
 - Created a non-root user.
 - Used the COPY commands in one line.
@@ -102,23 +108,23 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 
 **Bootstrap workflow:** create the ECR repository
 
-![Bootstrap Confirmation](./Images/bootsrap.png)
+Bootstrap Confirmation
 
 **Docker workflow:** build and push the Docker image
 
-![Docker Confirmation](./Images/docker_deploy.png)
+Docker Confirmation
 
 The Docker workflow publishes a unique image tag artifact after each successful ARM64 build.
 
 **Infrastructure workflow:** deploy the application
 
-![Terraform Confirmation](./Images/terraform_deploy.png)
+Terraform Confirmation
 
 The infrastructure workflow reads that artifact, sets `TF_VAR_image_tag`, and updates the ECS task definition and service to the new image revision.
 
 **Clean up workflow:** delete everything
 
-![Cleanup Confirmation](./Images/cleanup.png)
+Cleanup Confirmation
 
 ## Certificate
 
@@ -134,4 +140,3 @@ aws acm request-certificate --domain-name ceedev.co.uk --validation-method DNS
 - We will be adding SES for emails.
 - Create a script for local execution.
 - Implement checkov into the CI/CD pipeline.
-
