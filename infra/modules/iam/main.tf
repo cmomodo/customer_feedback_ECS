@@ -73,29 +73,3 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
-
-#ses sender policy
-resource "aws_iam_user_policy" "ses_sender" {
-  name = "fider-ses-send"
-  user = aws_iam_user.ses_sender.name
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "SendEmail"
-        Effect = "Allow"
-        Action = [
-          "ses:SendEmail",
-          "ses:SendRawEmail"
-        ]
-        Resource = aws_ses_domain_identity.main.arn
-      },
-      {
-        Sid      = "ListSuppressions"
-        Effect   = "Allow"
-        Action   = ["ses:ListSuppressedDestinations"]
-        Resource = "*"
-      }
-    ]
-  })
-}

@@ -54,6 +54,22 @@ variable "database_url" {
   type        = string
 }
 
+variable "cognito_client_id" {
+  description = "Cognito app client ID for OAuth"
+  type        = string
+}
+
+variable "cognito_client_secret" {
+  description = "Cognito app client secret for OAuth"
+  type        = string
+  sensitive   = true
+}
+
+variable "cognito_endpoint" {
+  description = "Cognito hosted UI base URL for OAuth"
+  type        = string
+}
+
 variable "jwt_secret_name" {
   description = "Secret name for JWT secret env var"
   type        = string
