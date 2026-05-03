@@ -1,17 +1,10 @@
-# Customer Feedback App
+# LinkUp's Customer Feedback App on ECS
 
-This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. You can explore the tool's dashboard by signing up. We are currently working on adding authentication and authorization features using Cognito. We will also be adding SES for email notifications.
-
-### Task
-
-We were assigned to deploy an open source app using Terraform. The app chosen was the Customer Feedback App.
-We use a container image for the app, push it to ECR (recommended) or DockerHub, and use a CI/CD pipeline to build, test, and push the container image.
-Deploy the app on ECS using Terraform. All the resources should be provisioned using Terraform. Use TF modules.
-We will be using the CI/CD pipelines for easy deployment and automation. We have 4 different pipelines.
-The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup
+This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. This is a full stack application that includes a frontend, backend, and database. we have a pre-commit hook to run checks on the code. Pipelines are used to build, test, and push the container image. The app is live on https://ceedev.co.uk/_health or https://ceedev.co.uk/signup.
 
 ## System Design
-![System Design Diagram](./Images/system_design.png)
+
+![System Design Diagram](./Images/architecture2.png)
 
 ## Project Structure
 
@@ -87,12 +80,15 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 ```
 
 ## Health Check Confirmation
+
 ![Health Check Confirmation](./Images/health_check.png)
 
 ## HTTPs Confirmation
+
 ![HTTPs Confirmation](./Images/https.png)
 
 ## Docker
+
 ![Docker Confirmation](./Images/trivy_scan.png)
 
 - Created a non-root user.
@@ -103,6 +99,7 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 - Terraform deploys the exact image tag produced by the Docker workflow so ECS registers a new task definition revision and rolls the service forward.
 
 ## Pipelines
+
 Bootstrap workflow: create the ecr repository
 ![Docker Confirmation](./Images/bootsrap.png)
 
@@ -120,6 +117,7 @@ Clean up workflow: delete Everything
 ![Docker Confirmation](./Images/cleanup.png)
 
 ## Certificate
+
 For the HTTPS certificate, it's easier to use the CLI. This was suggested by Amazon Q.
 
 ```bash
@@ -131,7 +129,5 @@ aws acm request-certificate --domain-name ceedev.co.uk --validation-method DNS
 - We will add Cognito to allow authentication and authorization.
 - We will be adding SES for emails.
 - We have been shipping different versions of secrets because it gets retained for 7 days
-- When using secrets with a different version number, even after deployment there's a delay of 7 days before it's gone, that's why we now set it to zero
-- My computer is a Mac which uses amd64 but GitHub Actions uses x86_64, so I normally have to switch between them
 - Create a script for local execution
 - Implement checkov into the CI/CD pipeline.
