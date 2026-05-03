@@ -99,11 +99,17 @@ jobs:
             IMAGE_TAG="${{ inputs.image_tag }}"
           else
             IMAGE_TAG="${{ vars.DEPLOY_IMAGE_TAG }}"
+            if [ -z "$IMAGE_TAG" ]; then
+              IMAGE_TAG="$(aws ecr describe-images \
+                --repository-name "${{ steps.bootstrap.outputs.ecr_repository_name }}" \
+                --query 'sort_by(imageDetails[?imageTags && length(imageTags) > `0`], &imagePushedAt)[-1].imageTags[0]' \
+                --output text)"
+            fi
           fi
-          test -n "$IMAGE_TAG" || {
-            echo "Set the DEPLOY_IMAGE_TAG repository variable to an existing immutable ECR image tag."
+          if [ -z "$IMAGE_TAG" ] || [ "$IMAGE_TAG" = "None" ]; then
+            echo "Set DEPLOY_IMAGE_TAG or push at least one image to ECR before running the Terraform deploy workflow."
             exit 1
-          }
+          fi
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "TF_VAR_image_tag=$IMAGE_TAG" >> "$GITHUB_ENV"
         working-directory: .
