@@ -53,22 +53,22 @@ resource "aws_secretsmanager_secret_version" "ses_credentials" {
 
 
 output "ses_domain_identity_arn" {
-  value = aws_ses_domain_identity.main.arn
+  value     = aws_ses_domain_identity.main.arn
   sensitive = true
 }
 
 output "ses_credentials_secret_arn" {
-  value = aws_secretsmanager_secret.ses_credentials.arn
+  value     = aws_secretsmanager_secret.ses_credentials.arn
   sensitive = true
 }
 
 # valueFrom strings ECS task definitions can use directly for a JSON-encoded secret
 output "ses_access_key_id_value_from" {
-  value = "${aws_secretsmanager_secret.ses_credentials.arn}:access_key_id::"
+  value     = "${aws_secretsmanager_secret.ses_credentials.arn}:access_key_id::"
   sensitive = true
 }
 
 output "ses_secret_access_key_value_from" {
-  value = "${aws_secretsmanager_secret.ses_credentials.arn}:secret_access_key::"
+  value     = "${aws_secretsmanager_secret.ses_credentials.arn}:secret_access_key::"
   sensitive = true
 }

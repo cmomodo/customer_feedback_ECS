@@ -19,7 +19,7 @@ output "task_secret_arn" {
 }
 
 output "jwt_secret_name" {
-  value = local.jwt_secret_name
+  value     = local.jwt_secret_name
   sensitive = true
 }
 
