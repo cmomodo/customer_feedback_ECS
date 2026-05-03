@@ -119,18 +119,13 @@ variable "final_snapshot_identifier" {
   nullable    = true
 }
 
-variable "cognito_client_id" {
-  description = "Cognito app client ID"
+variable "email_noreply" {
+  description = "From address Fider uses for outgoing email. Must be on a domain you control (the SES domain identity)."
   type        = string
 }
 
-variable "cognito_client_secret" {
-  description = "Cognito app client secret"
-  type        = string
-  sensitive   = true
-}
-
-variable "cognito_endpoint" {
-  description = "Cognito hosted UI base URL"
-  type        = string
+variable "ses_sandbox_verified_recipients" {
+  description = "Email addresses to verify as recipients while SES is in sandbox mode. Each address receives a one-time AWS confirmation link that must be clicked. Leave empty once production access is granted."
+  type        = list(string)
+  default     = []
 }

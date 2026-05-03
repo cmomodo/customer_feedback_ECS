@@ -1,11 +1,13 @@
 #output for ecs task execution role arn
 output "ecs_task_execution_role_arn" {
-  value = aws_iam_role.ecs_task_execution_role.arn
+  value     = aws_iam_role.ecs_task_execution_role.arn
+  sensitive = true
 }
 
 #output for ecs task execution role name
 output "ecs_task_execution_role_name" {
-  value = aws_iam_role.ecs_task_execution_role.name
+  value     = aws_iam_role.ecs_task_execution_role.name
+  sensitive = true
 }
 
 #log group name=

@@ -70,6 +70,14 @@ resource "aws_ecs_task_definition" "task_fider" {
         {
           name      = var.jwt_secret_name
           valueFrom = var.task_secret_arn
+        },
+        {
+          name      = "EMAIL_AWSSES_ACCESS_KEY_ID"
+          valueFrom = var.ses_access_key_id_value_from
+        },
+        {
+          name      = "EMAIL_AWSSES_SECRET_ACCESS_KEY"
+          valueFrom = var.ses_secret_access_key_value_from
         }
       ])
       environment = [
@@ -79,6 +87,8 @@ resource "aws_ecs_task_definition" "task_fider" {
         env.name == "OAUTH_COGNITO_CLIENT_ID" ? { name = "OAUTH_COGNITO_CLIENT_ID", value = var.cognito_client_id } :
         env.name == "OAUTH_COGNITO_CLIENT_SECRET" ? { name = "OAUTH_COGNITO_CLIENT_SECRET", value = var.cognito_client_secret } :
         env.name == "OAUTH_COGNITO_ENDPOINT" ? { name = "OAUTH_COGNITO_ENDPOINT", value = var.cognito_endpoint } :
+        env.name == "EMAIL_NOREPLY" ? { name = "EMAIL_NOREPLY", value = var.email_noreply } :
+        env.name == "EMAIL_AWSSES_REGION" ? { name = "EMAIL_AWSSES_REGION", value = var.ses_region } :
         env
       ]
 
