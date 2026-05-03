@@ -11,7 +11,7 @@ on:
 jobs:
   docker:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-latest
     concurrency:
       group: docker-deploy-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       cancel-in-progress: true
@@ -85,19 +85,23 @@ jobs:
           echo "TF_VAR_ecr_repository_name=${{ steps.ecr.outputs.ecr_repository_name }}" >> "$GITHUB_ENV"
           echo "TF_VAR_image_tag=${image_tag}" >> "$GITHUB_ENV"
 
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push ARM64 docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./app/fider-main
-          platforms: linux/arm64
-          push: true
-          tags: ${{ steps.image.outputs.image_uri }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Build Docker image locally
+        env:
+          ECR_REPOSITORY_URL: ${{ steps.ecr.outputs.ecr_repository_url }}
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --load \
+            -t "${ECR_REPOSITORY_URL}:${IMAGE_TAG}" \
+            -t "${ECR_REPOSITORY_URL}:latest" \
+            ./app/fider-main
+
+          docker push "${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
+          docker push "${ECR_REPOSITORY_URL}:latest"
 
       - name: Trivy scan image
         uses: aquasecurity/trivy-action@v0.36.0
@@ -125,9 +129,15 @@ jobs:
         run: |
           mkdir -p "$TF_PLUGIN_CACHE_DIR"
           terraform -chdir=infra init
+          terraform -chdir=infra apply -auto-approve
 
-      - name: Validate, plan, and apply ECS deployment
+      - name: Update ECS service
+        env:
+          ECS_CLUSTER: customer_feedback
+          ECS_SERVICE: runner_one
         run: |
-          terraform -chdir=infra validate
-          terraform -chdir=infra plan -lock-timeout=5m -out=tfplan
-          terraform -chdir=infra apply -auto-approve -lock-timeout=5m tfplan
+          aws ecs update-service \
+             --cluster $ECS_CLUSTER \
+             --service $ECS_SERVICE \
+             --force-new-deployment \
+             --region ${{ env.AWS_REGION }}
