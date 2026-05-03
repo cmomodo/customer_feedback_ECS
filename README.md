@@ -5,6 +5,7 @@ This project is based on Customer Feedback App, an open source tool designed to 
 ## System Design
 
 System Design Diagram
+![System Design Diagram](./src/Images/architecture2.png)
 
 ## Project Structure
 
