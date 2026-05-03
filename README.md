@@ -5,7 +5,7 @@ This project is based on Customer Feedback App, an open source tool designed to 
 ## System Design
 
 System Design Diagram
-![System Design Diagram](./src/Images/architecture2.png)
+![System Design Diagram](./Images/architecture2.png)
 
 ## Project Structure
 
@@ -88,15 +88,17 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 
 ## Health Check Confirmation
 
-Health Check Confirmation
+![Health Check Confirmation](./Images/health_check.png)
 
 ## HTTPs Confirmation
 
-HTTPs Confirmation
+![HTTPs Confirmation](./Images/https.png)
 
 ## Docker
 
-Docker Confirmation
+![Docker Confirmation](./Images/ecs_p1.png)
+
+![Trivy Scan](./Images/trivy_scan.png)
 
 - Created a non-root user.
 - Used the COPY commands in one line.
@@ -109,23 +111,23 @@ Docker Confirmation
 
 **Bootstrap workflow:** create the ECR repository
 
-Bootstrap Confirmation
+![Bootstrap Confirmation](./Images/bootsrap.png)
 
 **Docker workflow:** build and push the Docker image
 
-Docker Confirmation
+![Docker Confirmation](./Images/docker_deploy.png)
 
 The Docker workflow publishes a unique image tag artifact after each successful ARM64 build.
 
 **Infrastructure workflow:** deploy the application
 
-Terraform Confirmation
+![Terraform Confirmation](./Images/terraform_deploy.png)
 
 The infrastructure workflow reads that artifact, sets `TF_VAR_image_tag`, and updates the ECS task definition and service to the new image revision.
 
 **Clean up workflow:** delete everything
 
-Cleanup Confirmation
+![Cleanup Confirmation](./Images/cleanup.png)
 
 ## Certificate
 
