@@ -1,4 +1,12 @@
 # 1. DKIM tokens — three CNAMEs SES needs in Route53
+data "aws_route53_zone" "ses" {
+  name = var.domain_name
+}
+
+resource "aws_ses_domain_identity" "main" {
+  domain = var.domain_name
+}
+
 resource "aws_ses_domain_dkim" "main" {
   domain = aws_ses_domain_identity.main.domain
 }
@@ -31,6 +39,10 @@ resource "aws_iam_user" "ses_sender" {
   tags = {
     Name = "fider-ses-sender"
   }
+}
+
+resource "aws_iam_access_key" "ses_sender" {
+  user = aws_iam_user.ses_sender.name
 }
 
 

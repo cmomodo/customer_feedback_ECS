@@ -82,3 +82,7 @@ test-cognito-fider.sh
 
 #ignore create cognito user script
 create-cognito-user.sh
+
+#ignore ses and cognito for now
+ses.tf
+cognito.tf

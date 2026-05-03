@@ -95,6 +95,8 @@ module "ecs" {
   jwt_secret_name = module.secrets.jwt_secret_name
   database_url    = local.database_url
 
+
+
   email_noreply                    = var.email_noreply
   ses_region                       = var.aws_region
   ses_credentials_secret_arn       = aws_secretsmanager_secret.ses_credentials.arn

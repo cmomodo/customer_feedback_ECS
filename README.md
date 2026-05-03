@@ -2,10 +2,27 @@
 
 This project is based on Customer Feedback App, an open source tool designed to facilitate customer feedback and improve customer experience. This is a full stack application that includes a frontend, backend, and database. we have a pre-commit hook to run checks on the code. Pipelines are used to build, test, and push the container image. The app is live on [https://ceedev.co.uk/\_health](https://ceedev.co.uk/_health) or [https://ceedev.co.uk/signup](https://ceedev.co.uk/signup).
 
+## Prerequisites
+
+- AWS CLI
+- Terraform
+- Docker
+- Github
+
 ## System Design
 
-System Design Diagram
 ![System Design Diagram](./Images/architecture2.png)
+
+## AWS Services
+
+- Networking (VPC, Subnets, Security Groups)
+- Database (RDS)
+- Security (IAM, Secrets Manager)
+- Containerization (ECS, Fargate)
+- Load Balancing (ALB)
+- Monitoring (CloudWatch)
+- Logging (CloudWatch Logs)
+- CI/CD (GitHub Actions)
 
 ## Project Structure
 
@@ -95,10 +112,6 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 ![HTTPs Confirmation](./Images/https.png)
 
 ## Docker
-
-![Docker Confirmation](./Images/ecs_p1.png)
-
-![Trivy Scan](./Images/trivy_scan.png)
 
 - Created a non-root user.
 - Used the COPY commands in one line.
