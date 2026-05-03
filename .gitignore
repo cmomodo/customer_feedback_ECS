@@ -76,3 +76,9 @@ override.tf.json
 plan.json
 *.pem
 *.key
+
+#ignore test cognito script
+test-cognito-fider.sh
+
+#ignore create cognito user script
+create-cognito-user.sh
