@@ -100,25 +100,29 @@ terraform -chdir=bootstrap apply -var-file=boot.tfvars
 
 ## Pipelines
 
-Bootstrap workflow: create the ecr repository
-![Docker Confirmation](./Images/bootsrap.png)
+**Bootstrap workflow:** create the ECR repository
 
-Docker workflow: build and push the docker image
+![Bootstrap Confirmation](./Images/bootsrap.png)
+
+**Docker workflow:** build and push the Docker image
+
 ![Docker Confirmation](./Images/docker_deploy.png)
 
 The Docker workflow publishes a unique image tag artifact after each successful ARM64 build.
 
-Infrastructure workflow: deploy the application
-![Docker Confirmation](./Images/terraform_deploy.png)
+**Infrastructure workflow:** deploy the application
+
+![Terraform Confirmation](./Images/terraform_deploy.png)
 
 The infrastructure workflow reads that artifact, sets `TF_VAR_image_tag`, and updates the ECS task definition and service to the new image revision.
 
-Clean up workflow: delete Everything
-![Docker Confirmation](./Images/cleanup.png)
+**Clean up workflow:** delete everything
+
+![Cleanup Confirmation](./Images/cleanup.png)
 
 ## Certificate
 
-For the HTTPS certificate, it's easier to use the CLI. This was suggested by Amazon Q.
+For the HTTPS certificate, it's easier to use the CLI. This was suggested by Amazon Q. Also saves time when the cicd pipeline is running.
 
 ```bash
 aws acm request-certificate --domain-name ceedev.co.uk --validation-method DNS
@@ -128,6 +132,6 @@ aws acm request-certificate --domain-name ceedev.co.uk --validation-method DNS
 
 - We will add Cognito to allow authentication and authorization.
 - We will be adding SES for emails.
-- We have been shipping different versions of secrets because it gets retained for 7 days
-- Create a script for local execution
+- Create a script for local execution.
 - Implement checkov into the CI/CD pipeline.
+
