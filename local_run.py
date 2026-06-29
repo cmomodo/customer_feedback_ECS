@@ -145,7 +145,16 @@ def step_build(image_tag: str = "local"):
     full_tag    = f"{ecr_url}:{image_tag}"
     latest_tag  = f"{ecr_url}:latest"
 
-    run(["docker", "build", "-t", full_tag, "-t", latest_tag, "."], cwd=APP_DIR)
+    run(
+        [
+            "docker", "build",
+            "--platform", "linux/arm64",
+            "-t", full_tag,
+            "-t", latest_tag,
+            ".",
+        ],
+        cwd=APP_DIR,
+    )
     run(["docker", "push", full_tag])
     run(["docker", "push", latest_tag])
     print(f"\n  ✓ Pushed {full_tag}")

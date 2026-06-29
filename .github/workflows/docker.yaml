@@ -11,7 +11,7 @@ on:
 jobs:
   docker:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-arm64
     concurrency:
       group: docker-deploy-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       cancel-in-progress: true
@@ -88,20 +88,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image locally
+      - name: Build and push ARM64 Docker image
         env:
           ECR_REPOSITORY_URL: ${{ steps.ecr.outputs.ecr_repository_url }}
           IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
         run: |
           docker buildx build \
-            --platform linux/amd64 \
-            --load \
+            --platform linux/arm64 \
+            --push \
             -t "${ECR_REPOSITORY_URL}:${IMAGE_TAG}" \
             -t "${ECR_REPOSITORY_URL}:latest" \
             ./app/fider-main
-
-          docker push "${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
-          docker push "${ECR_REPOSITORY_URL}:latest"
 
       - name: Trivy scan image
         uses: aquasecurity/trivy-action@v0.36.0
